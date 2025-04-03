@@ -1,0 +1,4007 @@
+plot(model_f$residuals_sd,model_af$residuals_sd)
+abline(a=0,b=1)
+par(ask=FALSE)
+plot(model_f$residuals_sd,model_af$residuals_sd,cex=0.5,pch=16)
+abline(a=0,b=1)
+abline(a=0,b=1,lty=2,col="gray")
+plot(model_f$residuals_sd,model_af$residuals_sd,cex=0.5,pch=16)#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)
+plot(log10( model_af$titer[indexInfected]),pch=16)
+seq(-2,-3.5, length=42)
+seq(-2,-4, length=42)
+log_inf_k3_ave_seq<-seq(-2,-4, length=length(dates))
+log_inf_k3_ave_seq<-seq(-1,-4, length=length(dates))
+setwd("/Users/jorge/Desktop/ToolingUpForSystemsBiologyAndMedicineWorkshop2024/Werk/RawData/Demengeot")#
+controlsampleid<-sprintf("Control%03d",seq(1,1000))#
+infectedsampleid<-sprintf("Infected%03d",seq(1,3000))#
+controlsamplepointer=1#
+infectedsamplepointer=1#
+dates<-sort(sample(seq(as.Date('2023-01-01'), as.Date('2023-12-31'), by = "day"), 42))#
+#
+log_inf_k3_sd=2#
+log_inf_k3_ave_seq<-seq(-1,-4, length=length(dates))#
+for (i in 1:length(dates)) {#
+	log_inf_k3_ave= log_inf_k3_ave_seq[i]#
+	perday<-sample(4:8,1)#
+	for (p in 1:perday) {#
+		filename<-paste(dates[i]," plate_",p,".csv",sep="")#
+		data<-make_plate_d12(pd0=abs(rnorm(1,0.5,0.1)),pk1=abs(2*rnorm(1,1,0.2)),pk2=abs(8*rnorm(1,1,0.25)) )#
+		write.csv(data,filename, row.names = FALSE)#
+	}#
+}
+make_plate_d12<-function(ref=2,control=2,inf=4,pk1=2,pk2=10,pdfac=4, pd0=1.0) {#
+	dat<-as.data.frame(matrix(NA,nrow=12,ncol=8))#
+	c<-0;#
+	for (i in 1:ref) {#
+		c=c+1#
+		dat[,c]<-generate_homogeneous_elisa(k3= abs(rnorm(1,ref_k3_ave, ref_k3_sd)),k1=pk1,k2=pk2,dfac=pdfac, d0=pd0)$s#
+		dat[,c]<-round(dat[,c],3)#
+		colnames(dat)[c]<-sprintf("Reference%d",i)#
+		}#
+	for (i in 1: control) {#
+		c=c+1#
+		dat[,c]<-generate_homogeneous_elisa(k3= abs(rnorm(1,control_k3_ave, control_k3_sd)),k1=pk1,k2=pk2,dfac=pdfac, d0=pd0)$s#
+		dat[,c]<-round(dat[,c],3)#
+		colnames(dat)[c]<-controlsampleid[controlsamplepointer]; #
+		controlsamplepointer <<- controlsamplepointer +1#
+		}#
+	for (i in 1: inf) {#
+		c=c+1#
+		#dat[,c]<-generate_homogeneous_elisa(k3= abs(rnorm(1, inf_k3_ave, inf_k3_sd)),k1=pk1,k2=pk2,dfac=pdfac, d0=pd0)$s#
+		#  dat[,c]<-generate_homogeneous_elisa(k3= 10^rnorm(1, log10(inf_k3_ave), inf_k3_sd),k1=pk1,k2=pk2,dfac=pdfac, d0=pd0)$s#
+		dat[,c]<-generate_homogeneous_elisa(k3= infected_k3_value(ref_k3= ref_k3_ave,ref_k3_sd= ref_k3_sd,control_k3= control_k3_ave, control_k3_sd= control_k3_sd, log_inf_k3= log_inf_k3_ave,log_inf_k3_sd= log_inf_k3_sd),#
+			k1=pk1,k2=pk2,dfac=pdfac, d0=pd0)$s#
+	 	dat[,c]<-round(dat[,c],3)#
+		colnames(dat)[c]<-infectedsampleid[infectedsamplepointer]; #
+		infectedsamplepointer <<- infectedsamplepointer +1;#
+		}#
+	dat$dilution<-generate_homogeneous_elisa(k3= abs(rnorm(1, inf_k3_ave, inf_k3_sd)),k1=pk1,k2=pk2,dfac=pdfac, d0=pd0)$d#
+	return(dat)#
+}
+# Define as absolute values#
+ref_k3_ave=0.0001#
+ref_k3_sd=0.00001#
+#
+control_k3_ave=0.5#
+control_k3_sd=0.03#
+#
+inf_k3_ave=0.01#
+inf_k3_sd=1#
+log_inf_k3_ave=-2#
+log_inf_k3_sd=3#
+#
+make_plate_d12()#
+plot_plate_12( make_plate_d12(pd0=abs(rnorm(1,0.5,0.1)),pk1=abs(2*rnorm(1,1,0.3)),pk2=abs(8*rnorm(1,1,0.25)) ))#
+setwd("/Users/jorge/Desktop/ToolingUpForSystemsBiologyAndMedicineWorkshop2024/Werk/RawData/Demengeot")#
+controlsampleid<-sprintf("Control%03d",seq(1,1000))#
+infectedsampleid<-sprintf("Infected%03d",seq(1,3000))#
+controlsamplepointer=1#
+infectedsamplepointer=1#
+dates<-sort(sample(seq(as.Date('2023-01-01'), as.Date('2023-12-31'), by = "day"), 42))#
+#
+log_inf_k3_sd=2#
+log_inf_k3_ave_seq<-seq(-1,-4, length=length(dates))#
+for (i in 1:length(dates)) {#
+	log_inf_k3_ave= log_inf_k3_ave_seq[i]#
+	perday<-sample(4:8,1)#
+	for (p in 1:perday) {#
+		filename<-paste(dates[i]," plate_",p,".csv",sep="")#
+		data<-make_plate_d12(pd0=abs(rnorm(1,0.5,0.1)),pk1=abs(2*rnorm(1,1,0.2)),pk2=abs(8*rnorm(1,1,0.25)) )#
+		write.csv(data,filename, row.names = FALSE)#
+	}#
+}
+setwd("/Users/jorge/Desktop/ToolingUpForSystemsBiologyAndMedicineWorkshop2024/Werk/RawData/Demengeot")#
+fnames<-dir()#
+splitpath<-strsplit(getwd(),"/")#
+splitpath[[1]]#
+laboratory<-tail(splitpath[[1]],1)
+laboratory
+model_f<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,ref_k3=NA, standard_k3=NA,residuals_sd=NA)
+par(ask=T)#
+for(filename in fnames) {#
+	sample_col=c("darkgray","black","gray")#
+	print(filename)#
+#
+	basename=paste(sub('\\.csv$', '', filename) )#
+#
+	platedate<-strsplit(basename," ")[[1]][1]#
+	plateid<-strsplit(basename," ")[[1]][2]#
+#
+	dat<-read.csv(filename)#
+	sample_type<-as.factor(substring(colnames(dat)[1:8], 1, 1))#
+	model_f_row<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,ref_k3=NA,standard_k3=NA,titer=NA, residuals_sd=NA)#
+#
+	model_f_plate<-model_f_row#
+	plot(log10(dat$dilution),dat[,1],t="p",pch=16,cex=2, col= sample_col[sample_type[1]],xlab="Relative Concentration",ylab="Signal", main= basename)#
+	for (i in 2:8)#
+		points(log10(dat$dilution),dat[,i],pch=16,cex=2,col=sample_col[sample_type[i]])#
+	s_min=min(dat[,1:8])	#
+	s_max=max(dat[,1:8])	#
+	abline(h=s_min,lty=2)#
+	abline(h=s_max,lty=2)#
+	abline(h=(s_min+s_max)/2,lty=2)#
+	log_d<-seq( log10(min(dat[,9])), log10(max(dat[,9])),length=100)#
+	d<-10^log_d#
+	for (i in 1:8)	{#
+		model_f_row$Lab=laboratory#
+		model_f_row$Date=platedate#
+		model_f_row$Plate=plateid#
+		model_f_row$Id=colnames(dat)[i]	#
+		data<-dat[,c(9,i)]#
+		colnames(data)<-c("d","s")#
+		ik3<-dat$dilution[ which(dat[,i]<=(s_min+s_max)/2)[1] ]#
+		print(ik3)#
+		if (max(dat[,i])<(s_min+s_max)/2) {#
+			f_fit<-nls(s ~ f(d,k1,s_max-s_min,k3),data, start=list(k1=s_min, k3=ik3) ,control=nlc)#
+			model_f_row$k1=coefficients(f_fit)[1]#
+			model_f_row$k2=s_max-s_min#
+			model_f_row$k3=coefficients(f_fit)[2]#
+			model_f_row$residuals_sd=summary(f_fit)$sigma#
+		} else {#
+			f_fit<-nls(s ~ f(d,k1,k2,k3),data, start=list(k1=s_min, k2=s_max-s_min,k3=ik3) ,control=nlc)#
+			model_f_row$k1=coefficients(f_fit)[1]#
+			model_f_row$k2=coefficients(f_fit)[2]#
+			model_f_row$k3=coefficients(f_fit)[3]#
+			model_f_row$residuals_sd=summary(f_fit)$sigma#
+		}#
+		lines(log_d,predict(f_fit,list(d=d)),col=sample_col[sample_type[i]])#
+	#	plot(log10(dat$dilution),data$s,pch=16,cex=2,col=sample_col[sample_type[i]])#
+	#	lines(log_d,af(log_d,k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2),col="red")#
+	#	lines(log_d,af(log_d,k1=1.779, k2=s_max-s_min,k3= -1.277,k4= 2.476),col="red")#
+		if (is.na(model_f_plate$Id[1])) {#
+			model_f_plate<-model_f_row#
+		} else {#
+			model_f_plate<-rbind(model_f_plate,model_f_row)#
+		}#
+	}#
+	index_R<-which(sample_type=="R")#
+	refmean<-mean(model_f_plate $k3[index_R])	#
+	model_f_plate $ref_k3=refmean#
+	model_f_plate $standard_k3= model_f_plate $k3/refmean#
+	model_f_plate $titer=1/	model_f_plate $standard_k3#
+		if (is.na(model_f$Id[1])) {#
+			model_f<-model_f_plate#
+		} else {#
+			model_f<-rbind(model_f, model_f_plate)#
+		}#
+}#
+par(ask=F)#
+#
+indexInfected<-grep("I",model_f$Id)#
+#
+plot(log10( model_f$titer[indexInfected]),pch=16)#
+#
+plot( ecdf(log10( model_f$titer[indexInfected])) )
+indexInfected<-grep("I",model_f$Id)
+par(ask=F)
+plot(log10( model_f$titer[indexInfected]),pch=16)
+plot( ecdf(log10( model_f$titer[indexInfected])) )
+model_af<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,k4=NA,ref_k3=NA, standard_k3=NA,residuals_sd=NA)#
+par(ask=T)#
+for(filename in fnames) {#
+	sample_col=c("darkgray","black","gray")#
+	print(filename)#
+#
+	basename=paste(sub('\\.csv$', '', filename) )#
+#
+	platedate<-strsplit(basename," ")[[1]][1]#
+	plateid<-strsplit(basename," ")[[1]][2]#
+#
+	dat<-read.csv(filename)#
+	sample_type<-as.factor(substring(colnames(dat)[1:8], 1, 1))#
+	model_af_row<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,k4=NA,ref_k3=NA,standard_k3=NA,titer=NA, residuals_sd=NA)#
+#
+	model_af_plate<-model_atan_row#
+	plot(log10(dat$dilution),dat[,1],t="p",pch=16,cex=2, col= sample_col[sample_type[1]],xlab="Relative Concentration",ylab="Signal", main= basename)#
+	for (i in 2:8) {#
+		points(log10(dat$dilution),dat[,i],pch=16,cex=2,col=sample_col[sample_type[i]])#
+		}#
+	s_min=min(dat[,1:8])	#
+	s_max=max(dat[,1:8])	#
+	abline(h=s_min,lty=2)#
+	abline(h=s_max,lty=2)#
+	abline(h=(s_min+s_max)/2,lty=2)#
+	log_d<-seq( log10(min(dat[,9])), log10(max(dat[,9])),length=100)#
+	d<-10^log_d#
+	for (i in 1:8)	{#
+		model_af_row$Lab=laboratory#
+		model_af_row$Date=platedate#
+		model_af_row$Plate=plateid#
+		model_af_row$Id=colnames(dat)[i]	#
+		data<-dat[,c(9,i)]#
+		colnames(data)<-c("d","s")#
+		ik3<-data$d[ which(data$s<=(s_min+s_max)/2)[1] ]#
+		print(ik3)#
+		if (max(dat[,i])<(s_min+s_max)/2) {#
+			af_fit<-nls(s ~ af(log10(d),k1,s_max-s_min,k3,k4),  data, start=list(k1= s_min,k3= log10(ik3),k4=2),control=nlc)#
+			model_af_row$k1=coefficients(af_fit)[1]#
+			model_af_row$k2=s_max-s_min#
+			model_af_row$k3=coefficients(af_fit)[2]#
+			model_af_row$k4=coefficients(af_fit)[3]#
+			model_af_row$residuals_sd=summary(af_fit)$sigma#
+		} else {#
+			af_fit<-nls(s ~ af(log10(d),k1,k2,k3,k4),data, start=list(k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2) ,control=nlc)#
+			model_af_row$k1=coefficients(af_fit)[1]#
+			model_af_row$k2=coefficients(af_fit)[2]#
+			model_af_row$k3=coefficients(af_fit)[3]#
+			model_af_row$k4=coefficients(af_fit)[4]#
+			model_af_row$residuals_sd=summary(af_fit)$sigma#
+		}#
+		lines(log_d,predict(af_fit,list(d=d)),col=sample_col[sample_type[i]])#
+	#	plot(log10(dat$dilution),data$s,pch=16,cex=2,col=sample_col[sample_type[i]])#
+	#	lines(log_d,af(log_d,k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2),col="red")#
+	#	lines(log_d,af(log_d,k1=1.779, k2=s_max-s_min,k3= -1.277,k4= 2.476),col="red")#
+		if (is.na(model_af_plate$Id[1])) {#
+			model_af_plate<-model_af_row#
+		} else {#
+			model_af_plate<-rbind(model_af_plate,model_af_row)#
+		}#
+	}#
+	index_R<-which(sample_type=="R")#
+	refmean<-mean(model_af_plate $k3[index_R])	#
+	model_af_plate $ref_k3=refmean#
+	model_af_plate $standard_k3= model_af_plate $k3-refmean#
+	model_af_plate $titer=1/	10^model_af_plate $standard_k3#
+		if (is.na(model_af$Id[1])) {#
+			model_af<-model_af_plate#
+		} else {#
+			model_af<-rbind(model_af, model_af_plate)#
+		}#
+}#
+#
+par(ask=FALSE)
+plot(log10(dat$dilution),data$s,pch=16,cex=2,col=sample_col[sample_type[i]])
+setwd("/Users/jorge/Desktop/ToolingUpForSystemsBiologyAndMedicineWorkshop2024/Werk/RawData/Demengeot")#
+controlsampleid<-sprintf("Control%03d",seq(1,1000))#
+infectedsampleid<-sprintf("Infected%03d",seq(1,3000))#
+controlsamplepointer=1#
+infectedsamplepointer=1#
+dates<-sort(sample(seq(as.Date('2023-01-01'), as.Date('2023-09-31'), by = "day"), 42))#
+#
+log_inf_k3_sd=2#
+log_inf_k3_ave_seq<-seq(-1,-4, length=length(dates))#
+for (i in 1:length(dates)) {#
+	log_inf_k3_ave= log_inf_k3_ave_seq[i]#
+	perday<-sample(4:8,1)#
+	for (p in 1:perday) {#
+		filename<-paste(dates[i]," plate_",p,".csv",sep="")#
+		data<-make_plate_d12(pd0=abs(rnorm(1,0.5,0.1)),pk1=abs(2*rnorm(1,1,0.2)),pk2=abs(8*rnorm(1,1,0.25)) )#
+		write.csv(data,filename, row.names = FALSE)#
+	}#
+}
+setwd("/Users/jorge/Desktop/ToolingUpForSystemsBiologyAndMedicineWorkshop2024/Werk/RawData/Demengeot")#
+fnames<-dir()#
+splitpath<-strsplit(getwd(),"/")#
+splitpath[[1]]#
+laboratory<-tail(splitpath[[1]],1)
+model_af<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,k4=NA,ref_k3=NA, standard_k3=NA,residuals_sd=NA)#
+par(ask=T)#
+for(filename in fnames) {#
+	sample_col=c("darkgray","black","gray")#
+	print(filename)#
+#
+	basename=paste(sub('\\.csv$', '', filename) )#
+#
+	platedate<-strsplit(basename," ")[[1]][1]#
+	plateid<-strsplit(basename," ")[[1]][2]#
+#
+	dat<-read.csv(filename)#
+	sample_type<-as.factor(substring(colnames(dat)[1:8], 1, 1))#
+	model_af_row<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,k4=NA,ref_k3=NA,standard_k3=NA,titer=NA, residuals_sd=NA)#
+#
+	model_af_plate<-model_atan_row#
+	plot(log10(dat$dilution),dat[,1],t="p",pch=16,cex=2, col= sample_col[sample_type[1]],xlab="Relative Concentration",ylab="Signal", main= basename)#
+	for (i in 2:8) {#
+		points(log10(dat$dilution),dat[,i],pch=16,cex=2,col=sample_col[sample_type[i]])#
+		}#
+	s_min=min(dat[,1:8])	#
+	s_max=max(dat[,1:8])	#
+	abline(h=s_min,lty=2)#
+	abline(h=s_max,lty=2)#
+	abline(h=(s_min+s_max)/2,lty=2)#
+	log_d<-seq( log10(min(dat[,9])), log10(max(dat[,9])),length=100)#
+	d<-10^log_d#
+	for (i in 1:8)	{#
+		model_af_row$Lab=laboratory#
+		model_af_row$Date=platedate#
+		model_af_row$Plate=plateid#
+		model_af_row$Id=colnames(dat)[i]	#
+		data<-dat[,c(9,i)]#
+		colnames(data)<-c("d","s")#
+		ik3<-data$d[ which(data$s<=(s_min+s_max)/2)[1] ]#
+		print(ik3)#
+		if (max(dat[,i])<(s_min+s_max)/2) {#
+			af_fit<-nls(s ~ af(log10(d),k1,s_max-s_min,k3,k4),  data, start=list(k1= s_min,k3= log10(ik3),k4=2),control=nlc)#
+			model_af_row$k1=coefficients(af_fit)[1]#
+			model_af_row$k2=s_max-s_min#
+			model_af_row$k3=coefficients(af_fit)[2]#
+			model_af_row$k4=coefficients(af_fit)[3]#
+			model_af_row$residuals_sd=summary(af_fit)$sigma#
+		} else {#
+			af_fit<-nls(s ~ af(log10(d),k1,k2,k3,k4),data, start=list(k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2) ,control=nlc)#
+			model_af_row$k1=coefficients(af_fit)[1]#
+			model_af_row$k2=coefficients(af_fit)[2]#
+			model_af_row$k3=coefficients(af_fit)[3]#
+			model_af_row$k4=coefficients(af_fit)[4]#
+			model_af_row$residuals_sd=summary(af_fit)$sigma#
+		}#
+		lines(log_d,predict(af_fit,list(d=d)),col=sample_col[sample_type[i]])#
+		plot(log10(dat$dilution),data$s,pch=16,cex=2,col=sample_col[sample_type[i]])#
+	#	lines(log_d,af(log_d,k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2),col="red")#
+	#	lines(log_d,af(log_d,k1=1.779, k2=s_max-s_min,k3= -1.277,k4= 2.476),col="red")#
+		if (is.na(model_af_plate$Id[1])) {#
+			model_af_plate<-model_af_row#
+		} else {#
+			model_af_plate<-rbind(model_af_plate,model_af_row)#
+		}#
+	}#
+	index_R<-which(sample_type=="R")#
+	refmean<-mean(model_af_plate $k3[index_R])	#
+	model_af_plate $ref_k3=refmean#
+	model_af_plate $standard_k3= model_af_plate $k3-refmean#
+	model_af_plate $titer=1/	10^model_af_plate $standard_k3#
+		if (is.na(model_af$Id[1])) {#
+			model_af<-model_af_plate#
+		} else {#
+			model_af<-rbind(model_af, model_af_plate)#
+		}#
+}#
+#
+par(ask=FALSE)
+par(ask=T)#
+for(filename in fnames) {#
+	sample_col=c("darkgray","black","gray")#
+	print(filename)#
+#
+	basename=paste(sub('\\.csv$', '', filename) )#
+#
+	platedate<-strsplit(basename," ")[[1]][1]#
+	plateid<-strsplit(basename," ")[[1]][2]#
+#
+	dat<-read.csv(filename)#
+	sample_type<-as.factor(substring(colnames(dat)[1:8], 1, 1))#
+	model_af_row<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,k4=NA,ref_k3=NA,standard_k3=NA,titer=NA, residuals_sd=NA)#
+#
+	model_af_plate<-model_atan_row#
+	plot(log10(dat$dilution),dat[,1],t="p",pch=16,cex=2, col= sample_col[sample_type[1]],xlab="Relative Concentration",ylab="Signal", main= basename)#
+	for (i in 2:8) {#
+		points(log10(dat$dilution),dat[,i],pch=16,cex=2,col=sample_col[sample_type[i]])#
+		}#
+	s_min=min(dat[,1:8])	#
+	s_max=max(dat[,1:8])	#
+	abline(h=s_min,lty=2)#
+	abline(h=s_max,lty=2)#
+	abline(h=(s_min+s_max)/2,lty=2)#
+	log_d<-seq( log10(min(dat[,9])), log10(max(dat[,9])),length=100)#
+	d<-10^log_d#
+	for (i in 1:8)	{#
+		model_af_row$Lab=laboratory#
+		model_af_row$Date=platedate#
+		model_af_row$Plate=plateid#
+		model_af_row$Id=colnames(dat)[i]	#
+		data<-dat[,c(9,i)]#
+		colnames(data)<-c("d","s")#
+		ik3<-data$d[ which(data$s<=(s_min+s_max)/2)[1] ]#
+		print(ik3)#
+		if (max(dat[,i])<(s_min+s_max)/2) {#
+			af_fit<-nls(s ~ af(log10(d),k1,s_max-s_min,k3,k4),  data, start=list(k1= s_min,k3= log10(ik3),k4=2),control=nlc)#
+			model_af_row$k1=coefficients(af_fit)[1]#
+			model_af_row$k2=s_max-s_min#
+			model_af_row$k3=coefficients(af_fit)[2]#
+			model_af_row$k4=coefficients(af_fit)[3]#
+			model_af_row$residuals_sd=summary(af_fit)$sigma#
+		} else {#
+			af_fit<-nls(s ~ af(log10(d),k1,k2,k3,k4),data, start=list(k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2) ,control=nlc)#
+			model_af_row$k1=coefficients(af_fit)[1]#
+			model_af_row$k2=coefficients(af_fit)[2]#
+			model_af_row$k3=coefficients(af_fit)[3]#
+			model_af_row$k4=coefficients(af_fit)[4]#
+			model_af_row$residuals_sd=summary(af_fit)$sigma#
+		}#
+		lines(log_d,predict(af_fit,list(d=d)),col=sample_col[sample_type[i]])#
+	#	plot(log10(dat$dilution),data$s,pch=16,cex=2,col=sample_col[sample_type[i]])#
+	#	lines(log_d,af(log_d,k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2),col="red")#
+	#	lines(log_d,af(log_d,k1=1.779, k2=s_max-s_min,k3= -1.277,k4= 2.476),col="red")#
+		if (is.na(model_af_plate$Id[1])) {#
+			model_af_plate<-model_af_row#
+		} else {#
+			model_af_plate<-rbind(model_af_plate,model_af_row)#
+		}#
+	}#
+	index_R<-which(sample_type=="R")#
+	refmean<-mean(model_af_plate $k3[index_R])	#
+	model_af_plate $ref_k3=refmean#
+	model_af_plate $standard_k3= model_af_plate $k3-refmean#
+	model_af_plate $titer=1/	10^model_af_plate $standard_k3#
+		if (is.na(model_af$Id[1])) {#
+			model_af<-model_af_plate#
+		} else {#
+			model_af<-rbind(model_af, model_af_plate)#
+		}#
+}#
+#
+par(ask=FALSE)
+par(ask=FALSE)
+model_af<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,k4=NA,ref_k3=NA, standard_k3=NA,residuals_sd=NA)#
+par(ask=T)#
+for(filename in fnames) {#
+	sample_col=c("darkgray","black","gray")#
+	print(filename)#
+#
+	basename=paste(sub('\\.csv$', '', filename) )#
+#
+	platedate<-strsplit(basename," ")[[1]][1]#
+	plateid<-strsplit(basename," ")[[1]][2]#
+#
+	dat<-read.csv(filename)#
+	sample_type<-as.factor(substring(colnames(dat)[1:8], 1, 1))#
+	model_af_row<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,k4=NA,ref_k3=NA,standard_k3=NA,titer=NA, residuals_sd=NA)#
+#
+	model_af_plate<-model_atan_row#
+	plot(log10(dat$dilution),dat[,1],t="p",pch=16,cex=2, col= sample_col[sample_type[1]],xlab="Relative Concentration",ylab="Signal", main= basename)#
+	for (i in 2:8) {#
+		points(log10(dat$dilution),dat[,i],pch=16,cex=2,col=sample_col[sample_type[i]])#
+		}#
+	s_min=min(dat[,1:8])	#
+	s_max=max(dat[,1:8])	#
+	abline(h=s_min,lty=2)#
+	abline(h=s_max,lty=2)#
+	abline(h=(s_min+s_max)/2,lty=2)#
+	log_d<-seq( log10(min(dat[,9])), log10(max(dat[,9])),length=100)#
+	d<-10^log_d#
+	for (i in 1:8)	{#
+		model_af_row$Lab=laboratory#
+		model_af_row$Date=platedate#
+		model_af_row$Plate=plateid#
+		model_af_row$Id=colnames(dat)[i]	#
+		data<-dat[,c(9,i)]#
+		colnames(data)<-c("d","s")#
+		ik3<-data$d[ which(data$s<=(s_min+s_max)/2)[1] ]#
+		print(ik3)#
+		if (max(dat[,i])<(s_min+s_max)/2) {#
+			af_fit<-nls(s ~ af(log10(d),k1,s_max-s_min,k3,k4),  data, start=list(k1= s_min,k3= log10(ik3),k4=2),control=nlc)#
+			model_af_row$k1=coefficients(af_fit)[1]#
+			model_af_row$k2=s_max-s_min#
+			model_af_row$k3=coefficients(af_fit)[2]#
+			model_af_row$k4=coefficients(af_fit)[3]#
+			model_af_row$residuals_sd=summary(af_fit)$sigma#
+		} else {#
+			af_fit<-nls(s ~ af(log10(d),k1,k2,k3,k4),data, start=list(k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2) ,control=nlc)#
+			model_af_row$k1=coefficients(af_fit)[1]#
+			model_af_row$k2=coefficients(af_fit)[2]#
+			model_af_row$k3=coefficients(af_fit)[3]#
+			model_af_row$k4=coefficients(af_fit)[4]#
+			model_af_row$residuals_sd=summary(af_fit)$sigma#
+		}#
+		lines(log_d,predict(af_fit,list(d=d)),col=sample_col[sample_type[i]])#
+	#	plot(log10(dat$dilution),data$s,pch=16,cex=2,col=sample_col[sample_type[i]])#
+	#	lines(log_d,af(log_d,k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2),col="red")#
+	#	lines(log_d,af(log_d,k1=1.779, k2=s_max-s_min,k3= -1.277,k4= 2.476),col="red")#
+		if (is.na(model_af_plate$Id[1])) {#
+			model_af_plate<-model_af_row#
+		} else {#
+			model_af_plate<-rbind(model_af_plate,model_af_row)#
+		}#
+	}#
+	index_R<-which(sample_type=="R")#
+	refmean<-mean(model_af_plate $k3[index_R])	#
+	model_af_plate $ref_k3=refmean#
+	model_af_plate $standard_k3= model_af_plate $k3-refmean#
+	model_af_plate $titer=1/	10^model_af_plate $standard_k3#
+		if (is.na(model_af$Id[1])) {#
+			model_af<-model_af_plate#
+		} else {#
+			model_af<-rbind(model_af, model_af_plate)#
+		}#
+}#
+#
+par(ask=FALSE)
+plot(log10( model_af$titer[indexInfected]),pch=16)
+par(ask=FALSE)
+plot(log10( model_af$titer[indexInfected]),pch=16)
+plot( ecdf(log10( model_af$titer[indexInfected])) )
+setwd("/Users/jorge/Desktop/ToolingUpForSystemsBiologyAndMedicineWorkshop2024/Werk/RawData/Demengeot")#
+fnames<-dir()#
+splitpath<-strsplit(getwd(),"/")#
+splitpath[[1]]#
+laboratory<-tail(splitpath[[1]],1)#
+model_f<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,ref_k3=NA, standard_k3=NA,residuals_sd=NA)#
+par(ask=T)#
+for(filename in fnames) {#
+	sample_col=c("darkgray","black","gray")#
+	print(filename)#
+#
+	basename=paste(sub('\\.csv$', '', filename) )#
+#
+	platedate<-strsplit(basename," ")[[1]][1]#
+	plateid<-strsplit(basename," ")[[1]][2]#
+#
+	dat<-read.csv(filename)#
+	sample_type<-as.factor(substring(colnames(dat)[1:8], 1, 1))#
+	model_f_row<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,ref_k3=NA,standard_k3=NA,titer=NA, residuals_sd=NA)#
+#
+	model_f_plate<-model_f_row#
+	plot(log10(dat$dilution),dat[,1],t="p",pch=16,cex=2, col= sample_col[sample_type[1]],xlab="Relative Concentration",ylab="Signal", main= basename)#
+	for (i in 2:8)#
+		points(log10(dat$dilution),dat[,i],pch=16,cex=2,col=sample_col[sample_type[i]])#
+	s_min=min(dat[,1:8])	#
+	s_max=max(dat[,1:8])	#
+	abline(h=s_min,lty=2)#
+	abline(h=s_max,lty=2)#
+	abline(h=(s_min+s_max)/2,lty=2)#
+	log_d<-seq( log10(min(dat[,9])), log10(max(dat[,9])),length=100)#
+	d<-10^log_d#
+	for (i in 1:8)	{#
+		model_f_row$Lab=laboratory#
+		model_f_row$Date=platedate#
+		model_f_row$Plate=plateid#
+		model_f_row$Id=colnames(dat)[i]	#
+		data<-dat[,c(9,i)]#
+		colnames(data)<-c("d","s")#
+		ik3<-dat$dilution[ which(dat[,i]<=(s_min+s_max)/2)[1] ]#
+		print(ik3)#
+		if (max(dat[,i])<(s_min+s_max)/2) {#
+			f_fit<-nls(s ~ f(d,k1,s_max-s_min,k3),data, start=list(k1=s_min, k3=ik3) ,control=nlc)#
+			model_f_row$k1=coefficients(f_fit)[1]#
+			model_f_row$k2=s_max-s_min#
+			model_f_row$k3=coefficients(f_fit)[2]#
+			model_f_row$residuals_sd=summary(f_fit)$sigma#
+		} else {#
+			f_fit<-nls(s ~ f(d,k1,k2,k3),data, start=list(k1=s_min, k2=s_max-s_min,k3=ik3) ,control=nlc)#
+			model_f_row$k1=coefficients(f_fit)[1]#
+			model_f_row$k2=coefficients(f_fit)[2]#
+			model_f_row$k3=coefficients(f_fit)[3]#
+			model_f_row$residuals_sd=summary(f_fit)$sigma#
+		}#
+		lines(log_d,predict(f_fit,list(d=d)),col=sample_col[sample_type[i]])#
+	#	plot(log10(dat$dilution),data$s,pch=16,cex=2,col=sample_col[sample_type[i]])#
+	#	lines(log_d,af(log_d,k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2),col="red")#
+	#	lines(log_d,af(log_d,k1=1.779, k2=s_max-s_min,k3= -1.277,k4= 2.476),col="red")#
+		if (is.na(model_f_plate$Id[1])) {#
+			model_f_plate<-model_f_row#
+		} else {#
+			model_f_plate<-rbind(model_f_plate,model_f_row)#
+		}#
+	}#
+	index_R<-which(sample_type=="R")#
+	refmean<-mean(model_f_plate $k3[index_R])	#
+	model_f_plate $ref_k3=refmean#
+	model_f_plate $standard_k3= model_f_plate $k3/refmean#
+	model_f_plate $titer=1/	model_f_plate $standard_k3#
+		if (is.na(model_f$Id[1])) {#
+			model_f<-model_f_plate#
+		} else {#
+			model_f<-rbind(model_f, model_f_plate)#
+		}#
+}#
+par(ask=F)#
+#
+indexInfected<-grep("I",model_f$Id)#
+#
+plot(log10( model_f$titer[indexInfected]),pch=16)#
+#
+plot( ecdf(log10( model_f$titer[indexInfected])) )
+plot(log10( model_f$titer[indexInfected]),pch=16)
+indexInfected<-grep("I",model_f$Id)
+plot(log10( model_f$titer[indexInfected]),pch=16)
+par(ask=F)
+plot( ecdf(log10( model_f$titer[indexInfected])) )
+plot(log10( model_f$titer[indexInfected]),log10( model_af$titer[indexInfected]),pch=16)
+plot(model_f$residuals_sd,model_af$residuals_sd,cex=0.5,pch=16)
+plot(model_f$residuals_sd,model_af$residuals_sd,cex=0.5,pch=16)
+plot(model_f$residuals_sd,model_af$residuals_sd,cex=0.5,pch=16)
+plot(log10( model_f$titer[indexInfected]),log10( model_af$titer[indexInfected]),pch=16)#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)
+plot(log10( model_f$titer[indexInfected]),log10( model_af$titer[indexInfected]),pch=16,xlab="log10 titer, Michaelis-Menten", ylab="log10 titer, rescaled atan")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)
+plot(model_f$residuals_sd,model_af$residuals_sd,cex=0.5,pch=16,xlab="Residuals Sigma, Michaelis-Menten", ylab="Residuals Sigma, rescaled atan")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)
+ref_k3_ave=0.0001#
+ref_k3_sd=0.00001#
+#
+control_k3_ave=0.5#
+control_k3_sd=0.03#
+#
+inf_k3_ave=0.01#
+inf_k3_sd=1#
+log_inf_k3_ave=-2#
+log_inf_k3_sd=3#
+#
+make_plate_d12()#
+plot_plate_12( make_plate_d12(pd0=abs(rnorm(1,0.5,0.1)),pk1=abs(2*rnorm(1,1,0.3)),pk2=abs(8*rnorm(1,1,0.25)) ))#
+setwd("/Users/jorge/Desktop/ToolingUpForSystemsBiologyAndMedicineWorkshop2024/Werk/RawData/Howard")#
+controlsampleid<-sprintf("Control%03d",seq(1,1000))#
+infectedsampleid<-sprintf("Infected%03d",seq(1,3000))#
+controlsamplepointer=1#
+infectedsamplepointer=1#
+dates<-sort(sample(seq(as.Date('2023-08-01'), as.Date('2023-12-31'), by = "day"), 42))#
+#
+log_inf_k3_sd=2#
+log_inf_k3_ave_seq<-seq(-2.5,-4, length=length(dates))#
+for (i in 1:length(dates)) {#
+	log_inf_k3_ave= log_inf_k3_ave_seq[i]#
+	perday<-sample(4:8,1)#
+	for (p in 1:perday) {#
+		filename<-paste(dates[i]," plate_",p,".csv",sep="")#
+		data<-make_plate_d12(pd0=abs(rnorm(1,0.5,0.1)),pk1=abs(2.4*rnorm(1,1,0.3)),pk2=abs(10*rnorm(1,1,0.3)) )#
+		write.csv(data,filename, row.names = FALSE)#
+	}#
+}
+dates<-sort(sample(seq(as.Date('2023-08-01'), as.Date('2023-12-31'), by = "day"), 27))
+i=1
+aste(format(dates[i],"%a %b %d")," plate_",p,".csv",sep="")
+paste(format(dates[i],"%a %b %d")," plate_",p,".csv",sep="")
+paste(format(dates[i],"%a %b %d %y")," P",p,".csv",sep="")
+paste(format(dates[i],"%a %b %d %Y")," P",p,".csv",sep="")
+controlsampleid<-sprintf("Control%03d",seq(1,1000))#
+infectedsampleid<-sprintf("Infected%03d",seq(1,3000))#
+controlsamplepointer=1#
+infectedsamplepointer=1#
+dates<-sort(sample(seq(as.Date('2023-08-01'), as.Date('2023-12-31'), by = "day"), 27))#
+#
+log_inf_k3_sd=2#
+log_inf_k3_ave_seq<-seq(-2.5,-4, length=length(dates))#
+for (i in 1:length(dates)) {#
+	log_inf_k3_ave= log_inf_k3_ave_seq[i]#
+	perday<-sample(4:8,1)#
+	for (p in 1:perday) {#
+		filename<-paste(format(dates[i],"%a %b %d %Y")," (P",p,").csv",sep="")#
+		data<-make_plate_d12(pd0=abs(rnorm(1,0.5,0.1)),pk1=abs(2.4*rnorm(1,1,0.3)),pk2=abs(10*rnorm(1,1,0.3)) )#
+		write.csv(data,filename, row.names = FALSE)#
+	}#
+}
+nlc <- nls.control(maxiter = 150,minFactor=10^-6)#
+#
+setwd("/Users/jorge/Desktop/ToolingUpForSystemsBiologyAndMedicineWorkshop2024/Werk/RawData/Howard")#
+fnames<-dir()#
+splitpath<-strsplit(getwd(),"/")#
+splitpath[[1]]#
+laboratory<-tail(splitpath[[1]],1)#
+model_f<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,ref_k3=NA, standard_k3=NA,residuals_sd=NA)#
+par(ask=T)#
+for(filename in fnames) {#
+	sample_col=c("darkgray","black","gray")#
+	print(filename)#
+#
+	basename=paste(sub('\\.csv$', '', filename) )#
+#
+	platedate<-strsplit(basename," ")[[1]][1]#
+	plateid<-strsplit(basename," ")[[1]][2]#
+#
+	dat<-read.csv(filename)#
+	sample_type<-as.factor(substring(colnames(dat)[1:8], 1, 1))#
+	model_f_row<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,ref_k3=NA,standard_k3=NA,titer=NA, residuals_sd=NA)#
+#
+	model_f_plate<-model_f_row#
+	plot(log10(dat$dilution),dat[,1],t="p",pch=16,cex=2, col= sample_col[sample_type[1]],xlab="Relative Concentration",ylab="Signal", main= basename)#
+	for (i in 2:8)#
+		points(log10(dat$dilution),dat[,i],pch=16,cex=2,col=sample_col[sample_type[i]])#
+	s_min=min(dat[,1:8])	#
+	s_max=max(dat[,1:8])	#
+	abline(h=s_min,lty=2)#
+	abline(h=s_max,lty=2)#
+	abline(h=(s_min+s_max)/2,lty=2)#
+	log_d<-seq( log10(min(dat[,9])), log10(max(dat[,9])),length=100)#
+	d<-10^log_d#
+	for (i in 1:8)	{#
+		model_f_row$Lab=laboratory#
+		model_f_row$Date=platedate#
+		model_f_row$Plate=plateid#
+		model_f_row$Id=colnames(dat)[i]	#
+		data<-dat[,c(9,i)]#
+		colnames(data)<-c("d","s")#
+		ik3<-dat$dilution[ which(dat[,i]<=(s_min+s_max)/2)[1] ]#
+		print(ik3)#
+		if (max(dat[,i])<(s_min+s_max)/2) {#
+			f_fit<-nls(s ~ f(d,k1,s_max-s_min,k3),data, start=list(k1=s_min, k3=ik3) ,control=nlc)#
+			model_f_row$k1=coefficients(f_fit)[1]#
+			model_f_row$k2=s_max-s_min#
+			model_f_row$k3=coefficients(f_fit)[2]#
+			model_f_row$residuals_sd=summary(f_fit)$sigma#
+		} else {#
+			f_fit<-nls(s ~ f(d,k1,k2,k3),data, start=list(k1=s_min, k2=s_max-s_min,k3=ik3) ,control=nlc)#
+			model_f_row$k1=coefficients(f_fit)[1]#
+			model_f_row$k2=coefficients(f_fit)[2]#
+			model_f_row$k3=coefficients(f_fit)[3]#
+			model_f_row$residuals_sd=summary(f_fit)$sigma#
+		}#
+		lines(log_d,predict(f_fit,list(d=d)),col=sample_col[sample_type[i]])#
+	#	plot(log10(dat$dilution),data$s,pch=16,cex=2,col=sample_col[sample_type[i]])#
+	#	lines(log_d,af(log_d,k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2),col="red")#
+	#	lines(log_d,af(log_d,k1=1.779, k2=s_max-s_min,k3= -1.277,k4= 2.476),col="red")#
+		if (is.na(model_f_plate$Id[1])) {#
+			model_f_plate<-model_f_row#
+		} else {#
+			model_f_plate<-rbind(model_f_plate,model_f_row)#
+		}#
+	}#
+	index_R<-which(sample_type=="R")#
+	refmean<-mean(model_f_plate $k3[index_R])	#
+	model_f_plate $ref_k3=refmean#
+	model_f_plate $standard_k3= model_f_plate $k3/refmean#
+	model_f_plate $titer=1/	model_f_plate $standard_k3#
+		if (is.na(model_f$Id[1])) {#
+			model_f<-model_f_plate#
+		} else {#
+			model_f<-rbind(model_f, model_f_plate)#
+		}#
+}#
+par(ask=F)#
+#
+indexInfected<-grep("I",model_f$Id)#
+#
+plot(log10( model_f$titer[indexInfected]),pch=16)#
+#
+plot( ecdf(log10( model_f$titer[indexInfected])) )
+setwd("/Users/jorge/Desktop/ToolingUpForSystemsBiologyAndMedicineWorkshop2024/Werk/RawData/Howard")#
+controlsampleid<-sprintf("Control%03d",seq(1,1000))#
+infectedsampleid<-sprintf("Infected%03d",seq(1,3000))#
+controlsamplepointer=1#
+infectedsamplepointer=1#
+dates<-sort(sample(seq(as.Date('2023-08-01'), as.Date('2023-12-31'), by = "day"), 27))#
+#
+log_inf_k3_sd=2#
+log_inf_k3_ave_seq<-seq(-2.5,-4, length=length(dates))#
+for (i in 1:length(dates)) {#
+	log_inf_k3_ave= log_inf_k3_ave_seq[i]#
+	perday<-sample(4:8,1)#
+	for (p in 1:perday) {#
+		filename<-paste(format(dates[i],"%a %b %d %Y")," (P",p,").csv",sep="")#
+		data<-make_plate_d12(pd0=abs(rnorm(1,0.5,0.1)),pk1=abs(2.4*rnorm(1,1,0.2)),pk2=abs(10*rnorm(1,1,0.3)) )#
+		write.csv(data,filename, row.names = FALSE)#
+	}#
+}
+setwd("/Users/jorge/Desktop/ToolingUpForSystemsBiologyAndMedicineWorkshop2024/Werk/RawData/Howard")#
+fnames<-dir()#
+splitpath<-strsplit(getwd(),"/")#
+splitpath[[1]]#
+laboratory<-tail(splitpath[[1]],1)#
+model_f<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,ref_k3=NA, standard_k3=NA,residuals_sd=NA)#
+par(ask=T)#
+for(filename in fnames) {#
+	sample_col=c("darkgray","black","gray")#
+	print(filename)#
+#
+	basename=paste(sub('\\.csv$', '', filename) )#
+#
+	platedate<-strsplit(basename," ")[[1]][1]#
+	plateid<-strsplit(basename," ")[[1]][2]#
+#
+	dat<-read.csv(filename)#
+	sample_type<-as.factor(substring(colnames(dat)[1:8], 1, 1))#
+	model_f_row<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,ref_k3=NA,standard_k3=NA,titer=NA, residuals_sd=NA)#
+#
+	model_f_plate<-model_f_row#
+	plot(log10(dat$dilution),dat[,1],t="p",pch=16,cex=2, col= sample_col[sample_type[1]],xlab="Relative Concentration",ylab="Signal", main= basename)#
+	for (i in 2:8)#
+		points(log10(dat$dilution),dat[,i],pch=16,cex=2,col=sample_col[sample_type[i]])#
+	s_min=min(dat[,1:8])	#
+	s_max=max(dat[,1:8])	#
+	abline(h=s_min,lty=2)#
+	abline(h=s_max,lty=2)#
+	abline(h=(s_min+s_max)/2,lty=2)#
+	log_d<-seq( log10(min(dat[,9])), log10(max(dat[,9])),length=100)#
+	d<-10^log_d#
+	for (i in 1:8)	{#
+		model_f_row$Lab=laboratory#
+		model_f_row$Date=platedate#
+		model_f_row$Plate=plateid#
+		model_f_row$Id=colnames(dat)[i]	#
+		data<-dat[,c(9,i)]#
+		colnames(data)<-c("d","s")#
+		ik3<-dat$dilution[ which(dat[,i]<=(s_min+s_max)/2)[1] ]#
+		print(ik3)#
+		if (max(dat[,i])<(s_min+s_max)/2) {#
+			f_fit<-nls(s ~ f(d,k1,s_max-s_min,k3),data, start=list(k1=s_min, k3=ik3) ,control=nlc)#
+			model_f_row$k1=coefficients(f_fit)[1]#
+			model_f_row$k2=s_max-s_min#
+			model_f_row$k3=coefficients(f_fit)[2]#
+			model_f_row$residuals_sd=summary(f_fit)$sigma#
+		} else {#
+			f_fit<-nls(s ~ f(d,k1,k2,k3),data, start=list(k1=s_min, k2=s_max-s_min,k3=ik3) ,control=nlc)#
+			model_f_row$k1=coefficients(f_fit)[1]#
+			model_f_row$k2=coefficients(f_fit)[2]#
+			model_f_row$k3=coefficients(f_fit)[3]#
+			model_f_row$residuals_sd=summary(f_fit)$sigma#
+		}#
+		lines(log_d,predict(f_fit,list(d=d)),col=sample_col[sample_type[i]])#
+	#	plot(log10(dat$dilution),data$s,pch=16,cex=2,col=sample_col[sample_type[i]])#
+	#	lines(log_d,af(log_d,k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2),col="red")#
+	#	lines(log_d,af(log_d,k1=1.779, k2=s_max-s_min,k3= -1.277,k4= 2.476),col="red")#
+		if (is.na(model_f_plate$Id[1])) {#
+			model_f_plate<-model_f_row#
+		} else {#
+			model_f_plate<-rbind(model_f_plate,model_f_row)#
+		}#
+	}#
+	index_R<-which(sample_type=="R")#
+	refmean<-mean(model_f_plate $k3[index_R])	#
+	model_f_plate $ref_k3=refmean#
+	model_f_plate $standard_k3= model_f_plate $k3/refmean#
+	model_f_plate $titer=1/	model_f_plate $standard_k3#
+		if (is.na(model_f$Id[1])) {#
+			model_f<-model_f_plate#
+		} else {#
+			model_f<-rbind(model_f, model_f_plate)#
+		}#
+}#
+par(ask=F)#
+#
+indexInfected<-grep("I",model_f$Id)#
+#
+plot(log10( model_f$titer[indexInfected]),pch=16)#
+#
+plot( ecdf(log10( model_f$titer[indexInfected])) )
+model_af<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,k4=NA,ref_k3=NA, standard_k3=NA,residuals_sd=NA)#
+par(ask=T)#
+for(filename in fnames) {#
+	sample_col=c("darkgray","black","gray")#
+	print(filename)#
+#
+	basename=paste(sub('\\.csv$', '', filename) )#
+#
+	platedate<-strsplit(basename," ")[[1]][1]#
+	plateid<-strsplit(basename," ")[[1]][2]#
+#
+	dat<-read.csv(filename)#
+	sample_type<-as.factor(substring(colnames(dat)[1:8], 1, 1))#
+	model_af_row<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,k4=NA,ref_k3=NA,standard_k3=NA,titer=NA, residuals_sd=NA)#
+#
+	model_af_plate<-model_atan_row#
+	plot(log10(dat$dilution),dat[,1],t="p",pch=16,cex=2, col= sample_col[sample_type[1]],xlab="Relative Concentration",ylab="Signal", main= basename)#
+	for (i in 2:8) {#
+		points(log10(dat$dilution),dat[,i],pch=16,cex=2,col=sample_col[sample_type[i]])#
+		}#
+	s_min=min(dat[,1:8])	#
+	s_max=max(dat[,1:8])	#
+	abline(h=s_min,lty=2)#
+	abline(h=s_max,lty=2)#
+	abline(h=(s_min+s_max)/2,lty=2)#
+	log_d<-seq( log10(min(dat[,9])), log10(max(dat[,9])),length=100)#
+	d<-10^log_d#
+	for (i in 1:8)	{#
+		model_af_row$Lab=laboratory#
+		model_af_row$Date=platedate#
+		model_af_row$Plate=plateid#
+		model_af_row$Id=colnames(dat)[i]	#
+		data<-dat[,c(9,i)]#
+		colnames(data)<-c("d","s")#
+		ik3<-data$d[ which(data$s<=(s_min+s_max)/2)[1] ]#
+		print(ik3)#
+		if (max(dat[,i])<(s_min+s_max)/2) {#
+			af_fit<-nls(s ~ af(log10(d),k1,s_max-s_min,k3,k4),  data, start=list(k1= s_min,k3= log10(ik3),k4=2),control=nlc)#
+			model_af_row$k1=coefficients(af_fit)[1]#
+			model_af_row$k2=s_max-s_min#
+			model_af_row$k3=coefficients(af_fit)[2]#
+			model_af_row$k4=coefficients(af_fit)[3]#
+			model_af_row$residuals_sd=summary(af_fit)$sigma#
+		} else {#
+			af_fit<-nls(s ~ af(log10(d),k1,k2,k3,k4),data, start=list(k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2) ,control=nlc)#
+			model_af_row$k1=coefficients(af_fit)[1]#
+			model_af_row$k2=coefficients(af_fit)[2]#
+			model_af_row$k3=coefficients(af_fit)[3]#
+			model_af_row$k4=coefficients(af_fit)[4]#
+			model_af_row$residuals_sd=summary(af_fit)$sigma#
+		}#
+		lines(log_d,predict(af_fit,list(d=d)),col=sample_col[sample_type[i]])#
+	#	plot(log10(dat$dilution),data$s,pch=16,cex=2,col=sample_col[sample_type[i]])#
+	#	lines(log_d,af(log_d,k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2),col="red")#
+	#	lines(log_d,af(log_d,k1=1.779, k2=s_max-s_min,k3= -1.277,k4= 2.476),col="red")#
+		if (is.na(model_af_plate$Id[1])) {#
+			model_af_plate<-model_af_row#
+		} else {#
+			model_af_plate<-rbind(model_af_plate,model_af_row)#
+		}#
+	}#
+	index_R<-which(sample_type=="R")#
+	refmean<-mean(model_af_plate $k3[index_R])	#
+	model_af_plate $ref_k3=refmean#
+	model_af_plate $standard_k3= model_af_plate $k3-refmean#
+	model_af_plate $titer=1/	10^model_af_plate $standard_k3#
+		if (is.na(model_af$Id[1])) {#
+			model_af<-model_af_plate#
+		} else {#
+			model_af<-rbind(model_af, model_af_plate)#
+		}#
+}#
+#
+par(ask=FALSE)#
+plot(log10( model_af$titer[indexInfected]),pch=16)#
+#
+plot( ecdf(log10( model_af$titer[indexInfected])) )#
+plot(log10( model_f$titer[indexInfected]),log10( model_af$titer[indexInfected]),pch=16,xlab="log10 titer, Michaelis-Menten", ylab="log10 titer, rescaled atan")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)#
+plot(model_f$residuals_sd,model_af$residuals_sd,cex=0.5,pch=16,xlab="Residuals Sigma, Michaelis-Menten", ylab="Residuals Sigma, rescaled atan")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)
+setwd("/Users/jorge/Desktop/ToolingUpForSystemsBiologyAndMedicineWorkshop2024/Werk/RawData/Howard")#
+controlsampleid<-sprintf("Control%03d",seq(1,1000))#
+infectedsampleid<-sprintf("Infected%03d",seq(1,3000))#
+controlsamplepointer=1#
+infectedsamplepointer=1#
+dates<-sort(sample(seq(as.Date('2023-08-01'), as.Date('2023-12-31'), by = "day"), 27))#
+#
+log_inf_k3_sd=2#
+log_inf_k3_ave_seq<-seq(-2.5,-4, length=length(dates))#
+for (i in 1:length(dates)) {#
+	log_inf_k3_ave= log_inf_k3_ave_seq[i]#
+	perday<-sample(4:8,1)#
+	for (p in 1:perday) {#
+		filename<-paste(format(dates[i],"%a %b %d %Y")," (P",p,").csv",sep="")#
+		data<-make_plate_d12(pd0=abs(rnorm(1,0.5,0.1)),pk1=abs(2.4*rnorm(1,1,0.2)),pk2=abs(10*rnorm(1,1,0.3)) )#
+		write.csv(data,filename, row.names = FALSE)#
+	}#
+}
+setwd("/Users/jorge/Desktop/ToolingUpForSystemsBiologyAndMedicineWorkshop2024/Werk/RawData/Howard")#
+fnames<-dir()#
+splitpath<-strsplit(getwd(),"/")#
+splitpath[[1]]#
+laboratory<-tail(splitpath[[1]],1)
+model_af<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,k4=NA,ref_k3=NA, standard_k3=NA,residuals_sd=NA)#
+par(ask=T)#
+for(filename in fnames) {#
+	sample_col=c("darkgray","black","gray")#
+	print(filename)#
+#
+	basename=paste(sub('\\.csv$', '', filename) )#
+#
+	platedate<-strsplit(basename," ")[[1]][1]#
+	plateid<-strsplit(basename," ")[[1]][2]#
+#
+	dat<-read.csv(filename)#
+	sample_type<-as.factor(substring(colnames(dat)[1:8], 1, 1))#
+	model_af_row<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,k4=NA,ref_k3=NA,standard_k3=NA,titer=NA, residuals_sd=NA)#
+#
+	model_af_plate<-model_atan_row#
+	plot(log10(dat$dilution),dat[,1],t="p",pch=16,cex=2, col= sample_col[sample_type[1]],xlab="Relative Concentration",ylab="Signal", main= basename)#
+	for (i in 2:8) {#
+		points(log10(dat$dilution),dat[,i],pch=16,cex=2,col=sample_col[sample_type[i]])#
+		}#
+	s_min=min(dat[,1:8])	#
+	s_max=max(dat[,1:8])	#
+	abline(h=s_min,lty=2)#
+	abline(h=s_max,lty=2)#
+	abline(h=(s_min+s_max)/2,lty=2)#
+	log_d<-seq( log10(min(dat[,9])), log10(max(dat[,9])),length=100)#
+	d<-10^log_d#
+	for (i in 1:8)	{#
+		model_af_row$Lab=laboratory#
+		model_af_row$Date=platedate#
+		model_af_row$Plate=plateid#
+		model_af_row$Id=colnames(dat)[i]	#
+		data<-dat[,c(9,i)]#
+		colnames(data)<-c("d","s")#
+		ik3<-data$d[ which(data$s<=(s_min+s_max)/2)[1] ]#
+		print(ik3)#
+		if (max(dat[,i])<(s_min+s_max)/2) {#
+			af_fit<-nls(s ~ af(log10(d),k1,s_max-s_min,k3,k4),  data, start=list(k1= s_min,k3= log10(ik3),k4=2),control=nlc)#
+			model_af_row$k1=coefficients(af_fit)[1]#
+			model_af_row$k2=s_max-s_min#
+			model_af_row$k3=coefficients(af_fit)[2]#
+			model_af_row$k4=coefficients(af_fit)[3]#
+			model_af_row$residuals_sd=summary(af_fit)$sigma#
+		} else {#
+			af_fit<-nls(s ~ af(log10(d),k1,k2,k3,k4),data, start=list(k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2) ,control=nlc)#
+			model_af_row$k1=coefficients(af_fit)[1]#
+			model_af_row$k2=coefficients(af_fit)[2]#
+			model_af_row$k3=coefficients(af_fit)[3]#
+			model_af_row$k4=coefficients(af_fit)[4]#
+			model_af_row$residuals_sd=summary(af_fit)$sigma#
+		}#
+		lines(log_d,predict(af_fit,list(d=d)),col=sample_col[sample_type[i]])#
+	#	plot(log10(dat$dilution),data$s,pch=16,cex=2,col=sample_col[sample_type[i]])#
+	#	lines(log_d,af(log_d,k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2),col="red")#
+	#	lines(log_d,af(log_d,k1=1.779, k2=s_max-s_min,k3= -1.277,k4= 2.476),col="red")#
+		if (is.na(model_af_plate$Id[1])) {#
+			model_af_plate<-model_af_row#
+		} else {#
+			model_af_plate<-rbind(model_af_plate,model_af_row)#
+		}#
+	}#
+	index_R<-which(sample_type=="R")#
+	refmean<-mean(model_af_plate $k3[index_R])	#
+	model_af_plate $ref_k3=refmean#
+	model_af_plate $standard_k3= model_af_plate $k3-refmean#
+	model_af_plate $titer=1/	10^model_af_plate $standard_k3#
+		if (is.na(model_af$Id[1])) {#
+			model_af<-model_af_plate#
+		} else {#
+			model_af<-rbind(model_af, model_af_plate)#
+		}#
+}#
+#
+par(ask=FALSE)
+setwd("/Users/jorge/Desktop/ToolingUpForSystemsBiologyAndMedicineWorkshop2024/Werk/RawData/Howard")#
+controlsampleid<-sprintf("Control%03d",seq(1,1000))#
+infectedsampleid<-sprintf("Infected%03d",seq(1,3000))#
+controlsamplepointer=1#
+infectedsamplepointer=1#
+dates<-sort(sample(seq(as.Date('2023-08-01'), as.Date('2023-12-31'), by = "day"), 27))#
+#
+log_inf_k3_sd=2#
+log_inf_k3_ave_seq<-seq(-2.5,-4, length=length(dates))#
+for (i in 1:length(dates)) {#
+	log_inf_k3_ave= log_inf_k3_ave_seq[i]#
+	perday<-sample(4:8,1)#
+	for (p in 1:perday) {#
+		filename<-paste(format(dates[i],"%a %b %d %Y")," (P",p,").csv",sep="")#
+		data<-make_plate_d12(pd0=abs(rnorm(1,0.5,0.1)),pk1=abs(2.4*rnorm(1,1,0.2)),pk2=abs(10*rnorm(1,1,0.3)) )#
+		write.csv(data,filename, row.names = FALSE)#
+	}#
+}
+model_af<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,k4=NA,ref_k3=NA, standard_k3=NA,residuals_sd=NA)#
+par(ask=T)#
+for(filename in fnames) {#
+	sample_col=c("darkgray","black","gray")#
+	print(filename)#
+#
+	basename=paste(sub('\\.csv$', '', filename) )#
+#
+	platedate<-strsplit(basename," ")[[1]][1]#
+	plateid<-strsplit(basename," ")[[1]][2]#
+#
+	dat<-read.csv(filename)#
+	sample_type<-as.factor(substring(colnames(dat)[1:8], 1, 1))#
+	model_af_row<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,k4=NA,ref_k3=NA,standard_k3=NA,titer=NA, residuals_sd=NA)#
+#
+	model_af_plate<-model_atan_row#
+	plot(log10(dat$dilution),dat[,1],t="p",pch=16,cex=2, col= sample_col[sample_type[1]],xlab="Relative Concentration",ylab="Signal", main= basename)#
+	for (i in 2:8) {#
+		points(log10(dat$dilution),dat[,i],pch=16,cex=2,col=sample_col[sample_type[i]])#
+		}#
+	s_min=min(dat[,1:8])	#
+	s_max=max(dat[,1:8])	#
+	abline(h=s_min,lty=2)#
+	abline(h=s_max,lty=2)#
+	abline(h=(s_min+s_max)/2,lty=2)#
+	log_d<-seq( log10(min(dat[,9])), log10(max(dat[,9])),length=100)#
+	d<-10^log_d#
+	for (i in 1:8)	{#
+		model_af_row$Lab=laboratory#
+		model_af_row$Date=platedate#
+		model_af_row$Plate=plateid#
+		model_af_row$Id=colnames(dat)[i]	#
+		data<-dat[,c(9,i)]#
+		colnames(data)<-c("d","s")#
+		ik3<-data$d[ which(data$s<=(s_min+s_max)/2)[1] ]#
+		print(ik3)#
+		if (max(dat[,i])<(s_min+s_max)/2) {#
+			af_fit<-nls(s ~ af(log10(d),k1,s_max-s_min,k3,k4),  data, start=list(k1= s_min,k3= log10(ik3),k4=2),control=nlc)#
+			model_af_row$k1=coefficients(af_fit)[1]#
+			model_af_row$k2=s_max-s_min#
+			model_af_row$k3=coefficients(af_fit)[2]#
+			model_af_row$k4=coefficients(af_fit)[3]#
+			model_af_row$residuals_sd=summary(af_fit)$sigma#
+		} else {#
+			af_fit<-nls(s ~ af(log10(d),k1,k2,k3,k4),data, start=list(k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2) ,control=nlc)#
+			model_af_row$k1=coefficients(af_fit)[1]#
+			model_af_row$k2=coefficients(af_fit)[2]#
+			model_af_row$k3=coefficients(af_fit)[3]#
+			model_af_row$k4=coefficients(af_fit)[4]#
+			model_af_row$residuals_sd=summary(af_fit)$sigma#
+		}#
+		lines(log_d,predict(af_fit,list(d=d)),col=sample_col[sample_type[i]])#
+	#	plot(log10(dat$dilution),data$s,pch=16,cex=2,col=sample_col[sample_type[i]])#
+	#	lines(log_d,af(log_d,k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2),col="red")#
+	#	lines(log_d,af(log_d,k1=1.779, k2=s_max-s_min,k3= -1.277,k4= 2.476),col="red")#
+		if (is.na(model_af_plate$Id[1])) {#
+			model_af_plate<-model_af_row#
+		} else {#
+			model_af_plate<-rbind(model_af_plate,model_af_row)#
+		}#
+	}#
+	index_R<-which(sample_type=="R")#
+	refmean<-mean(model_af_plate $k3[index_R])	#
+	model_af_plate $ref_k3=refmean#
+	model_af_plate $standard_k3= model_af_plate $k3-refmean#
+	model_af_plate $titer=1/	10^model_af_plate $standard_k3#
+		if (is.na(model_af$Id[1])) {#
+			model_af<-model_af_plate#
+		} else {#
+			model_af<-rbind(model_af, model_af_plate)#
+		}#
+}#
+#
+par(ask=FALSE)
+setwd("/Users/jorge/Desktop/ToolingUpForSystemsBiologyAndMedicineWorkshop2024/Werk/RawData/Howard")#
+fnames<-dir()#
+splitpath<-strsplit(getwd(),"/")#
+splitpath[[1]]#
+laboratory<-tail(splitpath[[1]],1)
+model_af<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,k4=NA,ref_k3=NA, standard_k3=NA,residuals_sd=NA)#
+par(ask=T)#
+for(filename in fnames) {#
+	sample_col=c("darkgray","black","gray")#
+	print(filename)#
+#
+	basename=paste(sub('\\.csv$', '', filename) )#
+#
+	platedate<-strsplit(basename," ")[[1]][1]#
+	plateid<-strsplit(basename," ")[[1]][2]#
+#
+	dat<-read.csv(filename)#
+	sample_type<-as.factor(substring(colnames(dat)[1:8], 1, 1))#
+	model_af_row<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,k4=NA,ref_k3=NA,standard_k3=NA,titer=NA, residuals_sd=NA)#
+#
+	model_af_plate<-model_atan_row#
+	plot(log10(dat$dilution),dat[,1],t="p",pch=16,cex=2, col= sample_col[sample_type[1]],xlab="Relative Concentration",ylab="Signal", main= basename)#
+	for (i in 2:8) {#
+		points(log10(dat$dilution),dat[,i],pch=16,cex=2,col=sample_col[sample_type[i]])#
+		}#
+	s_min=min(dat[,1:8])	#
+	s_max=max(dat[,1:8])	#
+	abline(h=s_min,lty=2)#
+	abline(h=s_max,lty=2)#
+	abline(h=(s_min+s_max)/2,lty=2)#
+	log_d<-seq( log10(min(dat[,9])), log10(max(dat[,9])),length=100)#
+	d<-10^log_d#
+	for (i in 1:8)	{#
+		model_af_row$Lab=laboratory#
+		model_af_row$Date=platedate#
+		model_af_row$Plate=plateid#
+		model_af_row$Id=colnames(dat)[i]	#
+		data<-dat[,c(9,i)]#
+		colnames(data)<-c("d","s")#
+		ik3<-data$d[ which(data$s<=(s_min+s_max)/2)[1] ]#
+		print(ik3)#
+		if (max(dat[,i])<(s_min+s_max)/2) {#
+			af_fit<-nls(s ~ af(log10(d),k1,s_max-s_min,k3,k4),  data, start=list(k1= s_min,k3= log10(ik3),k4=2),control=nlc)#
+			model_af_row$k1=coefficients(af_fit)[1]#
+			model_af_row$k2=s_max-s_min#
+			model_af_row$k3=coefficients(af_fit)[2]#
+			model_af_row$k4=coefficients(af_fit)[3]#
+			model_af_row$residuals_sd=summary(af_fit)$sigma#
+		} else {#
+			af_fit<-nls(s ~ af(log10(d),k1,k2,k3,k4),data, start=list(k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2) ,control=nlc)#
+			model_af_row$k1=coefficients(af_fit)[1]#
+			model_af_row$k2=coefficients(af_fit)[2]#
+			model_af_row$k3=coefficients(af_fit)[3]#
+			model_af_row$k4=coefficients(af_fit)[4]#
+			model_af_row$residuals_sd=summary(af_fit)$sigma#
+		}#
+		lines(log_d,predict(af_fit,list(d=d)),col=sample_col[sample_type[i]])#
+	#	plot(log10(dat$dilution),data$s,pch=16,cex=2,col=sample_col[sample_type[i]])#
+	#	lines(log_d,af(log_d,k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2),col="red")#
+	#	lines(log_d,af(log_d,k1=1.779, k2=s_max-s_min,k3= -1.277,k4= 2.476),col="red")#
+		if (is.na(model_af_plate$Id[1])) {#
+			model_af_plate<-model_af_row#
+		} else {#
+			model_af_plate<-rbind(model_af_plate,model_af_row)#
+		}#
+	}#
+	index_R<-which(sample_type=="R")#
+	refmean<-mean(model_af_plate $k3[index_R])	#
+	model_af_plate $ref_k3=refmean#
+	model_af_plate $standard_k3= model_af_plate $k3-refmean#
+	model_af_plate $titer=1/	10^model_af_plate $standard_k3#
+		if (is.na(model_af$Id[1])) {#
+			model_af<-model_af_plate#
+		} else {#
+			model_af<-rbind(model_af, model_af_plate)#
+		}#
+}#
+#
+par(ask=FALSE)
+setwd("/Users/jorge/Desktop/ToolingUpForSystemsBiologyAndMedicineWorkshop2024/Werk/RawData/Howard")#
+fnames<-dir()#
+splitpath<-strsplit(getwd(),"/")#
+splitpath[[1]]#
+laboratory<-tail(splitpath[[1]],1)#
+model_f<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,ref_k3=NA, standard_k3=NA,residuals_sd=NA)#
+par(ask=T)#
+for(filename in fnames) {#
+	sample_col=c("darkgray","black","gray")#
+	print(filename)#
+#
+	basename=paste(sub('\\.csv$', '', filename) )#
+#
+	platedate<-strsplit(basename," ")[[1]][1]#
+	plateid<-strsplit(basename," ")[[1]][2]#
+#
+	dat<-read.csv(filename)#
+	sample_type<-as.factor(substring(colnames(dat)[1:8], 1, 1))#
+	model_f_row<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,ref_k3=NA,standard_k3=NA,titer=NA, residuals_sd=NA)#
+#
+	model_f_plate<-model_f_row#
+	plot(log10(dat$dilution),dat[,1],t="p",pch=16,cex=2, col= sample_col[sample_type[1]],xlab="Relative Concentration",ylab="Signal", main= basename)#
+	for (i in 2:8)#
+		points(log10(dat$dilution),dat[,i],pch=16,cex=2,col=sample_col[sample_type[i]])#
+	s_min=min(dat[,1:8])	#
+	s_max=max(dat[,1:8])	#
+	abline(h=s_min,lty=2)#
+	abline(h=s_max,lty=2)#
+	abline(h=(s_min+s_max)/2,lty=2)#
+	log_d<-seq( log10(min(dat[,9])), log10(max(dat[,9])),length=100)#
+	d<-10^log_d#
+	for (i in 1:8)	{#
+		model_f_row$Lab=laboratory#
+		model_f_row$Date=platedate#
+		model_f_row$Plate=plateid#
+		model_f_row$Id=colnames(dat)[i]	#
+		data<-dat[,c(9,i)]#
+		colnames(data)<-c("d","s")#
+		ik3<-dat$dilution[ which(dat[,i]<=(s_min+s_max)/2)[1] ]#
+		print(ik3)#
+		if (max(dat[,i])<(s_min+s_max)/2) {#
+			f_fit<-nls(s ~ f(d,k1,s_max-s_min,k3),data, start=list(k1=s_min, k3=ik3) ,control=nlc)#
+			model_f_row$k1=coefficients(f_fit)[1]#
+			model_f_row$k2=s_max-s_min#
+			model_f_row$k3=coefficients(f_fit)[2]#
+			model_f_row$residuals_sd=summary(f_fit)$sigma#
+		} else {#
+			f_fit<-nls(s ~ f(d,k1,k2,k3),data, start=list(k1=s_min, k2=s_max-s_min,k3=ik3) ,control=nlc)#
+			model_f_row$k1=coefficients(f_fit)[1]#
+			model_f_row$k2=coefficients(f_fit)[2]#
+			model_f_row$k3=coefficients(f_fit)[3]#
+			model_f_row$residuals_sd=summary(f_fit)$sigma#
+		}#
+		lines(log_d,predict(f_fit,list(d=d)),col=sample_col[sample_type[i]])#
+	#	plot(log10(dat$dilution),data$s,pch=16,cex=2,col=sample_col[sample_type[i]])#
+	#	lines(log_d,af(log_d,k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2),col="red")#
+	#	lines(log_d,af(log_d,k1=1.779, k2=s_max-s_min,k3= -1.277,k4= 2.476),col="red")#
+		if (is.na(model_f_plate$Id[1])) {#
+			model_f_plate<-model_f_row#
+		} else {#
+			model_f_plate<-rbind(model_f_plate,model_f_row)#
+		}#
+	}#
+	index_R<-which(sample_type=="R")#
+	refmean<-mean(model_f_plate $k3[index_R])	#
+	model_f_plate $ref_k3=refmean#
+	model_f_plate $standard_k3= model_f_plate $k3/refmean#
+	model_f_plate $titer=1/	model_f_plate $standard_k3#
+		if (is.na(model_f$Id[1])) {#
+			model_f<-model_f_plate#
+		} else {#
+			model_f<-rbind(model_f, model_f_plate)#
+		}#
+}#
+par(ask=F)
+indexInfected<-grep("I",model_f$Id)#
+#
+plot(log10( model_f$titer[indexInfected]),pch=16)#
+#
+plot( ecdf(log10( model_f$titer[indexInfected])) )
+plot(log10( model_f$titer[indexInfected]),pch=16)
+model_af<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,k4=NA,ref_k3=NA, standard_k3=NA,residuals_sd=NA)#
+par(ask=T)#
+for(filename in fnames) {#
+	sample_col=c("darkgray","black","gray")#
+	print(filename)#
+#
+	basename=paste(sub('\\.csv$', '', filename) )#
+#
+	platedate<-strsplit(basename," ")[[1]][1]#
+	plateid<-strsplit(basename," ")[[1]][2]#
+#
+	dat<-read.csv(filename)#
+	sample_type<-as.factor(substring(colnames(dat)[1:8], 1, 1))#
+	model_af_row<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,k4=NA,ref_k3=NA,standard_k3=NA,titer=NA, residuals_sd=NA)#
+#
+	model_af_plate<-model_atan_row#
+	plot(log10(dat$dilution),dat[,1],t="p",pch=16,cex=2, col= sample_col[sample_type[1]],xlab="Relative Concentration",ylab="Signal", main= basename)#
+	for (i in 2:8) {#
+		points(log10(dat$dilution),dat[,i],pch=16,cex=2,col=sample_col[sample_type[i]])#
+		}#
+	s_min=min(dat[,1:8])	#
+	s_max=max(dat[,1:8])	#
+	abline(h=s_min,lty=2)#
+	abline(h=s_max,lty=2)#
+	abline(h=(s_min+s_max)/2,lty=2)#
+	log_d<-seq( log10(min(dat[,9])), log10(max(dat[,9])),length=100)#
+	d<-10^log_d#
+	for (i in 1:8)	{#
+		model_af_row$Lab=laboratory#
+		model_af_row$Date=platedate#
+		model_af_row$Plate=plateid#
+		model_af_row$Id=colnames(dat)[i]	#
+		data<-dat[,c(9,i)]#
+		colnames(data)<-c("d","s")#
+		ik3<-data$d[ which(data$s<=(s_min+s_max)/2)[1] ]#
+		print(ik3)#
+		if (max(dat[,i])<(s_min+s_max)/2) {#
+			af_fit<-nls(s ~ af(log10(d),k1,s_max-s_min,k3,k4),  data, start=list(k1= s_min,k3= log10(ik3),k4=2),control=nlc)#
+			model_af_row$k1=coefficients(af_fit)[1]#
+			model_af_row$k2=s_max-s_min#
+			model_af_row$k3=coefficients(af_fit)[2]#
+			model_af_row$k4=coefficients(af_fit)[3]#
+			model_af_row$residuals_sd=summary(af_fit)$sigma#
+		} else {#
+			af_fit<-nls(s ~ af(log10(d),k1,k2,k3,k4),data, start=list(k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2) ,control=nlc)#
+			model_af_row$k1=coefficients(af_fit)[1]#
+			model_af_row$k2=coefficients(af_fit)[2]#
+			model_af_row$k3=coefficients(af_fit)[3]#
+			model_af_row$k4=coefficients(af_fit)[4]#
+			model_af_row$residuals_sd=summary(af_fit)$sigma#
+		}#
+		lines(log_d,predict(af_fit,list(d=d)),col=sample_col[sample_type[i]])#
+	#	plot(log10(dat$dilution),data$s,pch=16,cex=2,col=sample_col[sample_type[i]])#
+	#	lines(log_d,af(log_d,k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2),col="red")#
+	#	lines(log_d,af(log_d,k1=1.779, k2=s_max-s_min,k3= -1.277,k4= 2.476),col="red")#
+		if (is.na(model_af_plate$Id[1])) {#
+			model_af_plate<-model_af_row#
+		} else {#
+			model_af_plate<-rbind(model_af_plate,model_af_row)#
+		}#
+	}#
+	index_R<-which(sample_type=="R")#
+	refmean<-mean(model_af_plate $k3[index_R])	#
+	model_af_plate $ref_k3=refmean#
+	model_af_plate $standard_k3= model_af_plate $k3-refmean#
+	model_af_plate $titer=1/	10^model_af_plate $standard_k3#
+		if (is.na(model_af$Id[1])) {#
+			model_af<-model_af_plate#
+		} else {#
+			model_af<-rbind(model_af, model_af_plate)#
+		}#
+}#
+#
+par(ask=FALSE)
+model_af<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,k4=NA,ref_k3=NA, standard_k3=NA,residuals_sd=NA)#
+par(ask=T)#
+for(filename in fnames) {#
+	sample_col=c("darkgray","black","gray")#
+	print(filename)#
+#
+	basename=paste(sub('\\.csv$', '', filename) )#
+#
+	platedate<-strsplit(basename," ")[[1]][1]#
+	plateid<-strsplit(basename," ")[[1]][2]#
+#
+	dat<-read.csv(filename)#
+	sample_type<-as.factor(substring(colnames(dat)[1:8], 1, 1))#
+	model_af_row<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,k4=NA,ref_k3=NA,standard_k3=NA,titer=NA, residuals_sd=NA)#
+#
+	model_af_plate<-model_atan_row#
+	plot(log10(dat$dilution),dat[,1],t="p",pch=16,cex=2, col= sample_col[sample_type[1]],xlab="Relative Concentration",ylab="Signal", main= basename)#
+	for (i in 2:8) {#
+		points(log10(dat$dilution),dat[,i],pch=16,cex=2,col=sample_col[sample_type[i]])#
+		}#
+	s_min=min(dat[,1:8])	#
+	s_max=max(dat[,1:8])	#
+	abline(h=s_min,lty=2)#
+	abline(h=s_max,lty=2)#
+	abline(h=(s_min+s_max)/2,lty=2)#
+	log_d<-seq( log10(min(dat[,9])), log10(max(dat[,9])),length=100)#
+	d<-10^log_d#
+	for (i in 1:8)	{#
+		model_af_row$Lab=laboratory#
+		model_af_row$Date=platedate#
+		model_af_row$Plate=plateid#
+		model_af_row$Id=colnames(dat)[i]	#
+		data<-dat[,c(9,i)]#
+		colnames(data)<-c("d","s")#
+		ik3<-data$d[ which(data$s<=(s_min+s_max)/2)[1] ]#
+		print(ik3)#
+		if (max(dat[,i])<(s_min+s_max)/2) {#
+			af_fit<-nls(s ~ af(log10(d),k1,s_max-s_min,k3,k4),  data, start=list(k1= s_min,k3= log10(ik3),k4=2),control=nlc)#
+			model_af_row$k1=coefficients(af_fit)[1]#
+			model_af_row$k2=s_max-s_min#
+			model_af_row$k3=coefficients(af_fit)[2]#
+			model_af_row$k4=coefficients(af_fit)[3]#
+			model_af_row$residuals_sd=summary(af_fit)$sigma#
+		} else {#
+			af_fit<-nls(s ~ af(log10(d),k1,k2,k3,k4),data, start=list(k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2) ,control=nlc)#
+			model_af_row$k1=coefficients(af_fit)[1]#
+			model_af_row$k2=coefficients(af_fit)[2]#
+			model_af_row$k3=coefficients(af_fit)[3]#
+			model_af_row$k4=coefficients(af_fit)[4]#
+			model_af_row$residuals_sd=summary(af_fit)$sigma#
+		}#
+		lines(log_d,predict(af_fit,list(d=d)),col=sample_col[sample_type[i]])#
+	#	plot(log10(dat$dilution),data$s,pch=16,cex=2,col=sample_col[sample_type[i]])#
+	#	lines(log_d,af(log_d,k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2),col="red")#
+	#	lines(log_d,af(log_d,k1=1.779, k2=s_max-s_min,k3= -1.277,k4= 2.476),col="red")#
+		if (is.na(model_af_plate$Id[1])) {#
+			model_af_plate<-model_af_row#
+		} else {#
+			model_af_plate<-rbind(model_af_plate,model_af_row)#
+		}#
+	}#
+	index_R<-which(sample_type=="R")#
+	refmean<-mean(model_af_plate $k3[index_R])	#
+	model_af_plate $ref_k3=refmean#
+	model_af_plate $standard_k3= model_af_plate $k3-refmean#
+	model_af_plate $titer=1/	10^model_af_plate $standard_k3#
+		if (is.na(model_af$Id[1])) {#
+			model_af<-model_af_plate#
+		} else {#
+			model_af<-rbind(model_af, model_af_plate)#
+		}#
+}#
+#
+par(ask=FALSE)
+setwd("/Users/jorge/Desktop/ToolingUpForSystemsBiologyAndMedicineWorkshop2024/Werk/RawData/Howard")#
+fnames<-dir()#
+splitpath<-strsplit(getwd(),"/")#
+splitpath[[1]]#
+laboratory<-tail(splitpath[[1]],1)
+model_af<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,k4=NA,ref_k3=NA, standard_k3=NA,residuals_sd=NA)#
+par(ask=T)#
+for(filename in fnames) {#
+	sample_col=c("darkgray","black","gray")#
+	print(filename)#
+#
+	basename=paste(sub('\\.csv$', '', filename) )#
+#
+	platedate<-strsplit(basename," ")[[1]][1]#
+	plateid<-strsplit(basename," ")[[1]][2]#
+#
+	dat<-read.csv(filename)#
+	sample_type<-as.factor(substring(colnames(dat)[1:8], 1, 1))#
+	model_af_row<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,k4=NA,ref_k3=NA,standard_k3=NA,titer=NA, residuals_sd=NA)#
+#
+	model_af_plate<-model_atan_row#
+	plot(log10(dat$dilution),dat[,1],t="p",pch=16,cex=2, col= sample_col[sample_type[1]],xlab="Relative Concentration",ylab="Signal", main= basename)#
+	for (i in 2:8) {#
+		points(log10(dat$dilution),dat[,i],pch=16,cex=2,col=sample_col[sample_type[i]])#
+		}#
+	s_min=min(dat[,1:8])	#
+	s_max=max(dat[,1:8])	#
+	abline(h=s_min,lty=2)#
+	abline(h=s_max,lty=2)#
+	abline(h=(s_min+s_max)/2,lty=2)#
+	log_d<-seq( log10(min(dat[,9])), log10(max(dat[,9])),length=100)#
+	d<-10^log_d#
+	for (i in 1:8)	{#
+		model_af_row$Lab=laboratory#
+		model_af_row$Date=platedate#
+		model_af_row$Plate=plateid#
+		model_af_row$Id=colnames(dat)[i]	#
+		data<-dat[,c(9,i)]#
+		colnames(data)<-c("d","s")#
+		ik3<-data$d[ which(data$s<=(s_min+s_max)/2)[1] ]#
+		print(ik3)#
+		if (max(dat[,i])<(s_min+s_max)/2) {#
+			af_fit<-nls(s ~ af(log10(d),k1,s_max-s_min,k3,k4),  data, start=list(k1= s_min,k3= log10(ik3),k4=2),control=nlc)#
+			model_af_row$k1=coefficients(af_fit)[1]#
+			model_af_row$k2=s_max-s_min#
+			model_af_row$k3=coefficients(af_fit)[2]#
+			model_af_row$k4=coefficients(af_fit)[3]#
+			model_af_row$residuals_sd=summary(af_fit)$sigma#
+		} else {#
+			af_fit<-nls(s ~ af(log10(d),k1,k2,k3,k4),data, start=list(k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2) ,control=nlc)#
+			model_af_row$k1=coefficients(af_fit)[1]#
+			model_af_row$k2=coefficients(af_fit)[2]#
+			model_af_row$k3=coefficients(af_fit)[3]#
+			model_af_row$k4=coefficients(af_fit)[4]#
+			model_af_row$residuals_sd=summary(af_fit)$sigma#
+		}#
+		lines(log_d,predict(af_fit,list(d=d)),col=sample_col[sample_type[i]])#
+	#	plot(log10(dat$dilution),data$s,pch=16,cex=2,col=sample_col[sample_type[i]])#
+	#	lines(log_d,af(log_d,k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2),col="red")#
+	#	lines(log_d,af(log_d,k1=1.779, k2=s_max-s_min,k3= -1.277,k4= 2.476),col="red")#
+		if (is.na(model_af_plate$Id[1])) {#
+			model_af_plate<-model_af_row#
+		} else {#
+			model_af_plate<-rbind(model_af_plate,model_af_row)#
+		}#
+	}#
+	index_R<-which(sample_type=="R")#
+	refmean<-mean(model_af_plate $k3[index_R])	#
+	model_af_plate $ref_k3=refmean#
+	model_af_plate $standard_k3= model_af_plate $k3-refmean#
+	model_af_plate $titer=1/	10^model_af_plate $standard_k3#
+		if (is.na(model_af$Id[1])) {#
+			model_af<-model_af_plate#
+		} else {#
+			model_af<-rbind(model_af, model_af_plate)#
+		}#
+}#
+#
+par(ask=FALSE)
+plot(log10( model_af$titer[indexInfected]),pch=16)
+par(ask=FALSE)
+plot(log10( model_af$titer[indexInfected]),pch=16)
+plot( ecdf(log10( model_af$titer[indexInfected])) )
+plot(log10( model_f$titer[indexInfected]),log10( model_af$titer[indexInfected]),pch=16,xlab="log10 titer, Michaelis-Menten", ylab="log10 titer, rescaled atan")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)#
+plot(model_f$residuals_sd,model_af$residuals_sd,cex=0.5,pch=16,xlab="Residuals Sigma, Michaelis-Menten", ylab="Residuals Sigma, rescaled atan")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)
+model_f<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,ref_k3=NA, standard_k3=NA,residuals_sd=NA)#
+par(ask=T)#
+for(filename in fnames) {#
+	sample_col=c("darkgray","black","gray")#
+	print(filename)#
+#
+	basename=paste(sub('\\.csv$', '', filename) )#
+#
+	platedate<-strsplit(basename," ")[[1]][1]#
+	plateid<-strsplit(basename," ")[[1]][2]#
+#
+	dat<-read.csv(filename)#
+	sample_type<-as.factor(substring(colnames(dat)[1:8], 1, 1))#
+	model_f_row<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,ref_k3=NA,standard_k3=NA,titer=NA, residuals_sd=NA)#
+#
+	model_f_plate<-model_f_row#
+	plot(log10(dat$dilution),dat[,1],t="p",pch=16,cex=2, col= sample_col[sample_type[1]],xlab="Relative Concentration",ylab="Signal", main= basename)#
+	for (i in 2:8)#
+		points(log10(dat$dilution),dat[,i],pch=16,cex=2,col=sample_col[sample_type[i]])#
+	s_min=min(dat[,1:8])	#
+	s_max=max(dat[,1:8])	#
+	abline(h=s_min,lty=2)#
+	abline(h=s_max,lty=2)#
+	abline(h=(s_min+s_max)/2,lty=2)#
+	log_d<-seq( log10(min(dat[,9])), log10(max(dat[,9])),length=100)#
+	d<-10^log_d#
+	for (i in 1:8)	{#
+		model_f_row$Lab=laboratory#
+		model_f_row$Date=platedate#
+		model_f_row$Plate=plateid#
+		model_f_row$Id=colnames(dat)[i]	#
+		data<-dat[,c(9,i)]#
+		colnames(data)<-c("d","s")#
+		ik3<-dat$dilution[ which(dat[,i]<=(s_min+s_max)/2)[1] ]#
+		print(ik3)#
+		if (max(dat[,i])<(s_min+s_max)/2) {#
+			f_fit<-nls(s ~ f(d,k1,s_max-s_min,k3),data, start=list(k1=s_min, k3=ik3) ,control=nlc)#
+			model_f_row$k1=coefficients(f_fit)[1]#
+			model_f_row$k2=s_max-s_min#
+			model_f_row$k3=coefficients(f_fit)[2]#
+			model_f_row$residuals_sd=summary(f_fit)$sigma#
+		} else {#
+			f_fit<-nls(s ~ f(d,k1,k2,k3),data, start=list(k1=s_min, k2=s_max-s_min,k3=ik3) ,control=nlc)#
+			model_f_row$k1=coefficients(f_fit)[1]#
+			model_f_row$k2=coefficients(f_fit)[2]#
+			model_f_row$k3=coefficients(f_fit)[3]#
+			model_f_row$residuals_sd=summary(f_fit)$sigma#
+		}#
+		lines(log_d,predict(f_fit,list(d=d)),col=sample_col[sample_type[i]])#
+	#	plot(log10(dat$dilution),data$s,pch=16,cex=2,col=sample_col[sample_type[i]])#
+	#	lines(log_d,af(log_d,k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2),col="red")#
+	#	lines(log_d,af(log_d,k1=1.779, k2=s_max-s_min,k3= -1.277,k4= 2.476),col="red")#
+		if (is.na(model_f_plate$Id[1])) {#
+			model_f_plate<-model_f_row#
+		} else {#
+			model_f_plate<-rbind(model_f_plate,model_f_row)#
+		}#
+	}#
+	index_R<-which(sample_type=="R")#
+	refmean<-mean(model_f_plate $k3[index_R])	#
+	model_f_plate $ref_k3=refmean#
+	model_f_plate $standard_k3= model_f_plate $k3/refmean#
+	model_f_plate $titer=1/	model_f_plate $standard_k3#
+		if (is.na(model_f$Id[1])) {#
+			model_f<-model_f_plate#
+		} else {#
+			model_f<-rbind(model_f, model_f_plate)#
+		}#
+}#
+par(ask=F)#
+#
+indexInfected<-grep("I",model_f$Id)#
+#
+plot(log10( model_f$titer[indexInfected]),pch=16)#
+#
+plot( ecdf(log10( model_f$titer[indexInfected])) )
+plot(log10( model_f$titer[indexInfected]),log10( model_af$titer[indexInfected]),pch=16,xlab="log10 titer, Michaelis-Menten", ylab="log10 titer, rescaled atan")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)#
+plot(model_f$residuals_sd,model_af$residuals_sd,cex=0.5,pch=16,xlab="Residuals Sigma, Michaelis-Menten", ylab="Residuals Sigma, rescaled atan")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)
+par(ask=FALSE)
+plot(log10( model_f$titer[indexInfected]),log10( model_af$titer[indexInfected]),pch=16,xlab="log10 titer, Michaelis-Menten", ylab="log10 titer, rescaled atan")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)
+plot(model_f$residuals_sd,model_af$residuals_sd,cex=0.5,pch=16,xlab="Residuals Sigma, Michaelis-Menten", ylab="Residuals Sigma, rescaled atan")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)
+f<- function(x,k1,k2,k3,h=1) {#
+	return(k1+k2*x^h/(k3^h+x^h))#
+}#
+#
+p=list(k1=2,k2=11,k3=0.02)
+generate_homogeneous_elisa<-function(dn=12,d0=1,dfac=4,k1=2,k2=10,k3=0.001,h=1) {#
+	d<-d0*(1/4)^(1:12)#
+	s<-k1+k2*d^h/(k3^h+d^h)#
+	dr<-d*rnorm(dn,1,0.15)#
+	sr<-k1+k2*dr^h/(k3^h+dr^h)*rnorm(dn,1,0.04)+k1*rnorm(dn,0,0.05)#
+    #the data is built with the supposed dilution and the signal with the two errors in dilution and signal#
+	return(data.frame(d=d,s=sr) )#
+#
+}
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+summary(ref_k3)#
+dat<-generate_homogeneous_elisa(k3= ref_k3[1])#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (x in ref_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+#inf_k3<-abs(rnorm(50,0.005,0.01))#
+inf_k3<-10^rnorm(120,log10(0.005),2.0)#
+index<-which(inf_k3>0.5)#
+inf_k3[index]<-abs(rnorm(length(index),0.5,0.03))#
+index<-which(inf_k3<0.00008)#
+inf_k3[index]<-abs(rnorm(length(index),0.00008,0.03))#
+#
+summary(inf_k3)#
+dat<-generate_homogeneous_elisa(k3= inf_k3[1])#
+lines(log10(dat$d),dat$s,t="l",lwd=2, col="black")#
+for (x in inf_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x)#
+	lines(log10(dat$d),dat$s,t="l",lwd=2, col="black")#
+}#
+control_k3<-abs(rnorm(50,0.5,0.03))#
+summary(control_k3)#
+dat<-generate_homogeneous_elisa(k3= control_k3[1])#
+lines(log10(dat$d),dat$s,t="l",col="gray")#
+for (x in control_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+summary(ref_k3)#
+dat<-generate_homogeneous_elisa(k3= ref_k3[1],h=0.9)#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (x in ref_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+#inf_k3<-abs(rnorm(50,0.005,0.01))#
+inf_k3<-10^rnorm(120,log10(0.005),2.0)#
+index<-which(inf_k3>0.5)#
+inf_k3[index]<-abs(rnorm(length(index),0.5,0.03))#
+index<-which(inf_k3<0.00008)#
+inf_k3[index]<-abs(rnorm(length(index),0.00008,0.03))#
+#
+summary(inf_k3)#
+dat<-generate_homogeneous_elisa(k3= inf_k3[1],h=0.9)#
+lines(log10(dat$d),dat$s,t="l",lwd=2, col="black")#
+for (x in inf_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x)#
+	lines(log10(dat$d),dat$s,t="l",lwd=2, col="black")#
+}#
+control_k3<-abs(rnorm(50,0.5,0.03))#
+summary(control_k3)#
+dat<-generate_homogeneous_elisa(k3= control_k3[1],h=0.9)#
+lines(log10(dat$d),dat$s,t="l",col="gray")#
+for (x in control_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}
+par(mfrow=c(2,1))
+par(mfrow=c(2,1))#
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+summary(ref_k3)#
+dat<-generate_homogeneous_elisa(k3= ref_k3[1])#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (x in ref_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+#inf_k3<-abs(rnorm(50,0.005,0.01))#
+inf_k3<-10^rnorm(120,log10(0.005),2.0)#
+index<-which(inf_k3>0.5)#
+inf_k3[index]<-abs(rnorm(length(index),0.5,0.03))#
+index<-which(inf_k3<0.00008)#
+inf_k3[index]<-abs(rnorm(length(index),0.00008,0.03))#
+#
+summary(inf_k3)#
+dat<-generate_homogeneous_elisa(k3= inf_k3[1])#
+lines(log10(dat$d),dat$s,t="l",lwd=2, col="black")#
+for (x in inf_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x)#
+	lines(log10(dat$d),dat$s,t="l",lwd=2, col="black")#
+}#
+control_k3<-abs(rnorm(50,0.5,0.03))#
+summary(control_k3)#
+dat<-generate_homogeneous_elisa(k3= control_k3[1])#
+lines(log10(dat$d),dat$s,t="l",col="gray")#
+for (x in control_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+summary(ref_k3)#
+dat<-generate_homogeneous_elisa(k3= ref_k3[1],h=0.8)#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (x in ref_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+#inf_k3<-abs(rnorm(50,0.005,0.01))#
+inf_k3<-10^rnorm(120,log10(0.005),2.0)#
+index<-which(inf_k3>0.5)#
+inf_k3[index]<-abs(rnorm(length(index),0.5,0.03))#
+index<-which(inf_k3<0.00008)#
+inf_k3[index]<-abs(rnorm(length(index),0.00008,0.03))#
+#
+summary(inf_k3)#
+dat<-generate_homogeneous_elisa(k3= inf_k3[1],h=0.8)#
+lines(log10(dat$d),dat$s,t="l",lwd=2, col="black")#
+for (x in inf_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x)#
+	lines(log10(dat$d),dat$s,t="l",lwd=2, col="black")#
+}#
+control_k3<-abs(rnorm(50,0.5,0.03))#
+summary(control_k3)#
+dat<-generate_homogeneous_elisa(k3= control_k3[1],h=0.8)#
+lines(log10(dat$d),dat$s,t="l",col="gray")#
+for (x in control_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}
+par(mfrow=c(2,1))#
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+summary(ref_k3)#
+dat<-generate_homogeneous_elisa(k3= ref_k3[1])#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (x in ref_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+#inf_k3<-abs(rnorm(50,0.005,0.01))#
+inf_k3<-10^rnorm(120,log10(0.005),2.0)#
+index<-which(inf_k3>0.5)#
+inf_k3[index]<-abs(rnorm(length(index),0.5,0.03))#
+index<-which(inf_k3<0.00008)#
+inf_k3[index]<-abs(rnorm(length(index),0.00008,0.03))#
+#
+summary(inf_k3)#
+dat<-generate_homogeneous_elisa(k3= inf_k3[1])#
+lines(log10(dat$d),dat$s,t="l",lwd=2, col="black")#
+for (x in inf_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x)#
+	lines(log10(dat$d),dat$s,t="l",lwd=2, col="black")#
+}#
+control_k3<-abs(rnorm(50,0.5,0.03))#
+summary(control_k3)#
+dat<-generate_homogeneous_elisa(k3= control_k3[1])#
+lines(log10(dat$d),dat$s,t="l",col="gray")#
+for (x in control_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+summary(ref_k3)#
+dat<-generate_homogeneous_elisa(k3= ref_k3[1],h=0.6)#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (x in ref_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+#inf_k3<-abs(rnorm(50,0.005,0.01))#
+inf_k3<-10^rnorm(120,log10(0.005),2.0)#
+index<-which(inf_k3>0.5)#
+inf_k3[index]<-abs(rnorm(length(index),0.5,0.03))#
+index<-which(inf_k3<0.00008)#
+inf_k3[index]<-abs(rnorm(length(index),0.00008,0.03))#
+#
+summary(inf_k3)#
+dat<-generate_homogeneous_elisa(k3= inf_k3[1],h=0.6)#
+lines(log10(dat$d),dat$s,t="l",lwd=2, col="black")#
+for (x in inf_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x)#
+	lines(log10(dat$d),dat$s,t="l",lwd=2, col="black")#
+}#
+control_k3<-abs(rnorm(50,0.5,0.03))#
+summary(control_k3)#
+dat<-generate_homogeneous_elisa(k3= control_k3[1],h=0.6)#
+lines(log10(dat$d),dat$s,t="l",col="gray")#
+for (x in control_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}
+generate_homogeneous_elisa<-function(dn=12,d0=1,dfac=4,k1=2,k2=10,k3=0.001,h=1) {#
+	d<-d0*(1/4)^(1:12)#
+	s<-k1+k2*d^h/(k3^h+d^h)#
+	dr<-d*rnorm(dn,1,0.15)#
+	sr<-k1+k2*dr^h/(k3^h+dr^h)*rnorm(dn,1,0.04)+k1*rnorm(dn,0,0.05)#
+    #the data is built with the supposed dilution and the signal with the two errors in dilution and signal#
+	return(data.frame(d=d,s=sr) )#
+#
+}
+generate_homogeneous_elisa<-function(dn=12,d0=1,dfac=4,k1=2,k2=10,k3=0.001,h=1) {#
+	d<-d0*(1/4)^(1:12)#
+	s<-k1+k2*d^h/(k3^h+d^h)#
+	dr<-d*rnorm(dn,1,0.15)#
+	sr<-k1+k2*dr^h/(k3^h+dr^h)*rnorm(dn,1,0.04)+k1*rnorm(dn,0,0.05)#
+    #the data is built with the supposed dilution and the signal with the two errors in dilution and signal#
+	return(data.frame(d=d,s=sr) )#
+#
+}
+par(mfrow=c(2,1))#
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+summary(ref_k3)#
+dat<-generate_homogeneous_elisa(k3= ref_k3[1])#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (x in ref_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+#inf_k3<-abs(rnorm(50,0.005,0.01))#
+inf_k3<-10^rnorm(120,log10(0.005),2.0)#
+index<-which(inf_k3>0.5)#
+inf_k3[index]<-abs(rnorm(length(index),0.5,0.03))#
+index<-which(inf_k3<0.00008)#
+inf_k3[index]<-abs(rnorm(length(index),0.00008,0.03))#
+#
+summary(inf_k3)#
+dat<-generate_homogeneous_elisa(k3= inf_k3[1])#
+lines(log10(dat$d),dat$s,t="l",lwd=2, col="black")#
+for (x in inf_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x)#
+	lines(log10(dat$d),dat$s,t="l",lwd=2, col="black")#
+}#
+control_k3<-abs(rnorm(50,0.5,0.03))#
+summary(control_k3)#
+dat<-generate_homogeneous_elisa(k3= control_k3[1])#
+lines(log10(dat$d),dat$s,t="l",col="gray")#
+for (x in control_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+summary(ref_k3)#
+dat<-generate_homogeneous_elisa(k3= ref_k3[1],h=0.5)#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (x in ref_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+#inf_k3<-abs(rnorm(50,0.005,0.01))#
+inf_k3<-10^rnorm(120,log10(0.005),2.0)#
+index<-which(inf_k3>0.5)#
+inf_k3[index]<-abs(rnorm(length(index),0.5,0.03))#
+index<-which(inf_k3<0.00008)#
+inf_k3[index]<-abs(rnorm(length(index),0.00008,0.03))#
+#
+summary(inf_k3)#
+dat<-generate_homogeneous_elisa(k3= inf_k3[1],h=0.5)#
+lines(log10(dat$d),dat$s,t="l",lwd=2, col="black")#
+for (x in inf_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x)#
+	lines(log10(dat$d),dat$s,t="l",lwd=2, col="black")#
+}#
+control_k3<-abs(rnorm(50,0.5,0.03))#
+summary(control_k3)#
+dat<-generate_homogeneous_elisa(k3= control_k3[1],h=0.5)#
+lines(log10(dat$d),dat$s,t="l",col="gray")#
+for (x in control_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}
+par(mfrow=c(1,1))#
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+summary(ref_k3)#
+dat<-generate_homogeneous_elisa(k3= ref_k3[1])#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (x in ref_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+control_k3<-abs(rnorm(50,0.5,0.03))#
+summary(control_k3)#
+dat<-generate_homogeneous_elisa(k3= control_k3[1],h=0.5)#
+lines(log10(dat$d),dat$s,t="l",col="gray")#
+for (x in control_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+summary(ref_k3)#
+dat<-generate_homogeneous_elisa(k3= ref_k3[1])#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (x in ref_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+summary(ref_k3)#
+dat<-generate_homogeneous_elisa(k3= ref_k3[1],h=0.5)#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (x in ref_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x)#
+	lines(log10(dat$d),dat$s,t="l",col="black")#
+}
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+summary(ref_k3)#
+dat<-generate_homogeneous_elisa(k3= ref_k3[1])#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (x in ref_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+summary(ref_k3)#
+dat<-generate_homogeneous_elisa(k3= ref_k3[1],h=0.5)#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (x in ref_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x,h=0.5)#
+	lines(log10(dat$d),dat$s,t="l",col="black")#
+}
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+summary(ref_k3)#
+dat<-generate_homogeneous_elisa(k3= ref_k3[1])#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (x in ref_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+summary(ref_k3)#
+dat<-generate_homogeneous_elisa(k3= ref_k3[1],h=0.5)#
+lines(log10(dat$d),dat$s,t="l",col="gray")#
+for (x in ref_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x,h=0.5)#
+	lines(log10(dat$d),dat$s,t="l",col="black")#
+}
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+summary(ref_k3)#
+dat<-generate_homogeneous_elisa(k3= ref_k3[1])#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (x in ref_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+summary(ref_k3)#
+dat<-generate_homogeneous_elisa(k3= ref_k3[1],h=0.8)#
+lines(log10(dat$d),dat$s,t="l",col="gray")#
+for (x in ref_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x,h=0.8)#
+	lines(log10(dat$d),dat$s,t="l",col="black")#
+}
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+summary(ref_k3)#
+dat<-generate_homogeneous_elisa(k3= ref_k3[1])#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (x in ref_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+summary(ref_k3)#
+dat<-generate_homogeneous_elisa(k3= ref_k3[1],h=0.6)#
+lines(log10(dat$d),dat$s,t="l",col="gray")#
+for (x in ref_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x,h=0.6)#
+	lines(log10(dat$d),dat$s,t="l",col="black")#
+}
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+summary(ref_k3)#
+dat<-generate_homogeneous_elisa(k3= ref_k3[1])#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (x in ref_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+summary(ref_k3)#
+dat<-generate_homogeneous_elisa(k3= ref_k3[1],h=0.7)#
+lines(log10(dat$d),dat$s,t="l",col="gray")#
+for (x in ref_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x,h=0.7)#
+	lines(log10(dat$d),dat$s,t="l",col="black")#
+}
+plot_plate_12<-function(plate) {#
+	plot(log10(plate$dilution),plate[,1],t="l",col="blue",xlab="Relative concentration",ylab="Signal")#
+	lines(log10(plate$dilution),plate[,2],t="l",col="blue")#
+	for (c in 3:8) lines(log10(plate$dilution),plate[,c],t="l",col="gray")#
+}#
+infected_k3_value<-function(ref_k3=0.0001,ref_k3_sd=0.00001,control_k3=0.5, control_k3_sd=0.05, log_inf_k3=-2,log_inf_k3_sd=3) {#
+	inf_k3<-10^rnorm(1, log_inf_k3, log_inf_k3_sd)#
+	if (inf_k3> control_k3)#
+	 	inf_k3<-abs(rnorm(1, control_k3, control_k3_sd))#
+	else if (inf_k3<ref_k3)#
+		inf_k3<-abs(rnorm(1, ref_k3, ref_k3_sd*2))#
+#
+	return(inf_k3)#
+}#
+infected_k3_value()
+make_plate_d12<-function(ref=2,control=2,inf=4,pk1=2,pk2=10,pdfac=4, pd0=1.0) {#
+	dat<-as.data.frame(matrix(NA,nrow=12,ncol=8))#
+	c<-0;#
+	for (i in 1:ref) {#
+		c=c+1#
+		dat[,c]<-generate_homogeneous_elisa(k3= abs(rnorm(1,ref_k3_ave, ref_k3_sd)),k1=pk1,k2=pk2,dfac=pdfac, d0=pd0,h=0.7)$s#
+		dat[,c]<-round(dat[,c],3)#
+		colnames(dat)[c]<-sprintf("Reference%d",i)#
+		}#
+	for (i in 1: control) {#
+		c=c+1#
+		dat[,c]<-generate_homogeneous_elisa(k3= abs(rnorm(1,control_k3_ave, control_k3_sd)),k1=pk1,k2=pk2,dfac=pdfac, d0=pd0,h=0.7)$s#
+		dat[,c]<-round(dat[,c],3)#
+		colnames(dat)[c]<-controlsampleid[controlsamplepointer]; #
+		controlsamplepointer <<- controlsamplepointer +1#
+		}#
+	for (i in 1: inf) {#
+		c=c+1		#
+		dat[,c]<-generate_homogeneous_elisa(k3= infected_k3_value(ref_k3= ref_k3_ave,ref_k3_sd= ref_k3_sd,control_k3= control_k3_ave, control_k3_sd= control_k3_sd, log_inf_k3= log_inf_k3_ave,log_inf_k3_sd= log_inf_k3_sd,h=0.7),#
+			k1=pk1,k2=pk2,dfac=pdfac, d0=pd0)$s#
+	 	dat[,c]<-round(dat[,c],3)#
+		colnames(dat)[c]<-infectedsampleid[infectedsamplepointer]; #
+		infectedsamplepointer <<- infectedsamplepointer +1;#
+		}#
+	dat$dilution<-generate_homogeneous_elisa(k3= abs(rnorm(1, inf_k3_ave, inf_k3_sd)),k1=pk1,k2=pk2,dfac=pdfac, d0=pd0,h=0.7)$d#
+	return(dat)#
+}
+ref_k3_ave=0.0001#
+ref_k3_sd=0.00001#
+#
+control_k3_ave=0.5#
+control_k3_sd=0.03#
+#
+inf_k3_ave=0.01#
+inf_k3_sd=1#
+log_inf_k3_ave=-2#
+log_inf_k3_sd=3#
+#
+make_plate_d12()#
+plot_plate_12( make_plate_d12(pd0=abs(rnorm(1,0.5,0.1)),pk1=abs(2*rnorm(1,1,0.3)),pk2=abs(8*rnorm(1,1,0.25)) ))
+generate_homogeneous_elisa<-function(dn=12,d0=1,dfac=4,k1=2,k2=10,k3=0.001,h=1) {#
+	d<-d0*(1/4)^(1:12)#
+	s<-k1+k2*d^h/(k3^h+d^h)#
+	dr<-d*rnorm(dn,1,0.15)#
+	sr<-k1+k2*dr^h/(k3^h+dr^h)*rnorm(dn,1,0.04)+k1*rnorm(dn,0,0.05)#
+    #the data is built with the supposed dilution and the signal with the two errors in dilution and signal#
+	return(data.frame(d=d,s=sr) )#
+#
+}#
+#
+par(mfrow=c(1,1))
+make_plate_d12<-function(ref=2,control=2,inf=4,pk1=2,pk2=10,pdfac=4, pd0=1.0) {#
+	dat<-as.data.frame(matrix(NA,nrow=12,ncol=8))#
+	c<-0;#
+	for (i in 1:ref) {#
+		c=c+1#
+		dat[,c]<-generate_homogeneous_elisa(k3= abs(rnorm(1,ref_k3_ave, ref_k3_sd)),k1=pk1,k2=pk2,dfac=pdfac, d0=pd0,h=0.7)$s#
+		dat[,c]<-round(dat[,c],3)#
+		colnames(dat)[c]<-sprintf("Reference%d",i)#
+		}#
+	for (i in 1: control) {#
+		c=c+1#
+		dat[,c]<-generate_homogeneous_elisa(k3= abs(rnorm(1,control_k3_ave, control_k3_sd)),k1=pk1,k2=pk2,dfac=pdfac, d0=pd0,h=0.7)$s#
+		dat[,c]<-round(dat[,c],3)#
+		colnames(dat)[c]<-controlsampleid[controlsamplepointer]; #
+		controlsamplepointer <<- controlsamplepointer +1#
+		}#
+	for (i in 1: inf) {#
+		c=c+1		#
+		dat[,c]<-generate_homogeneous_elisa(k3= infected_k3_value(ref_k3= ref_k3_ave,ref_k3_sd= ref_k3_sd,control_k3= control_k3_ave, control_k3_sd= control_k3_sd, log_inf_k3= log_inf_k3_ave,log_inf_k3_sd= log_inf_k3_sd,h=0.7),#
+			k1=pk1,k2=pk2,dfac=pdfac, d0=pd0)$s#
+	 	dat[,c]<-round(dat[,c],3)#
+		colnames(dat)[c]<-infectedsampleid[infectedsamplepointer]; #
+		infectedsamplepointer <<- infectedsamplepointer +1;#
+		}#
+	dat$dilution<-generate_homogeneous_elisa(k3= abs(rnorm(1, inf_k3_ave, inf_k3_sd)),k1=pk1,k2=pk2,dfac=pdfac, d0=pd0,h=0.7)$d#
+	return(dat)#
+}
+make_plate_d12()
+make_plate_d12<-function(ref=2,control=2,inf=4,pk1=2,pk2=10,pdfac=4, pd0=1.0) {#
+	dat<-as.data.frame(matrix(NA,nrow=12,ncol=8))#
+	c<-0;#
+	for (i in 1:ref) {#
+		c=c+1#
+		dat[,c]<-generate_homogeneous_elisa(k3= abs(rnorm(1,ref_k3_ave, ref_k3_sd)),k1=pk1,k2=pk2,dfac=pdfac, d0=pd0,h=0.7)$s#
+		dat[,c]<-round(dat[,c],3)#
+		colnames(dat)[c]<-sprintf("Reference%d",i)#
+		}#
+	for (i in 1: control) {#
+		c=c+1#
+		dat[,c]<-generate_homogeneous_elisa(k3= abs(rnorm(1,control_k3_ave, control_k3_sd)),k1=pk1,k2=pk2,dfac=pdfac, d0=pd0,h=0.7)$s#
+		dat[,c]<-round(dat[,c],3)#
+		colnames(dat)[c]<-controlsampleid[controlsamplepointer]; #
+		controlsamplepointer <<- controlsamplepointer +1#
+		}#
+	for (i in 1: inf) {#
+		c=c+1		#
+		dat[,c]<-generate_homogeneous_elisa(k3= infected_k3_value(ref_k3= ref_k3_ave,ref_k3_sd= ref_k3_sd,control_k3= control_k3_ave, control_k3_sd= control_k3_sd, log_inf_k3= log_inf_k3_ave,log_inf_k3_sd= log_inf_k3_sd),#
+			k1=pk1,k2=pk2,dfac=pdfac, d0=pd0,h=0.7)$s#
+	 	dat[,c]<-round(dat[,c],3)#
+		colnames(dat)[c]<-infectedsampleid[infectedsamplepointer]; #
+		infectedsamplepointer <<- infectedsamplepointer +1;#
+		}#
+	dat$dilution<-generate_homogeneous_elisa(k3= abs(rnorm(1, inf_k3_ave, inf_k3_sd)),k1=pk1,k2=pk2,dfac=pdfac, d0=pd0,h=0.7)$d#
+	return(dat)#
+}
+make_plate_d12()
+plot_plate_12( make_plate_d12(pd0=abs(rnorm(1,0.5,0.1)),pk1=abs(2*rnorm(1,1,0.3)),pk2=abs(8*rnorm(1,1,0.25)) ))
+set.seed(1984)#
+setwd("/Users/jorge/Desktop/ToolingUpForSystemsBiologyAndMedicineWorkshop2024/Werk/RawData/Vilanova")#
+#
+lab="Vilanova"#
+#
+controlsampleid<-sprintf("C%03d",seq(1,1000))#
+infectedsampleid<-sprintf("I%03d",seq(1,3000))#
+controlsamplepointer=1#
+infectedsamplepointer=1#
+dates<-sort(sample(seq(as.Date('2023-03-01'), as.Date('2023-04-30'), by = "day"), 10))#
+log_inf_k3_ave=-2#
+log_inf_k3_sd=2#
+for (i in 1:length(dates)) {#
+	perday<-sample(4:8,1)#
+	for (p in 1:perday) {#
+		filename<-paste(dates[i]," plate_",p,".csv",sep="")#
+		data<-make_plate_d12(pd0=abs(rnorm(1,0.5,0.1)),pk1=abs(2*rnorm(1,1,0.2)),pk2=abs(8*rnorm(1,1,0.25)) )#
+		write.csv(data,filename, row.names = FALSE)#
+	}#
+}#
+#
+log_inf_k3_ave=-3.5#
+log_inf_k3_sd=2#
+#
+dates<-sort(sample(seq(as.Date('2023-08-01'), as.Date('2023-12-31'), by = "day"), 20))#
+for (i in 1:length(dates)) {#
+	perday<-sample(4:8,1)#
+	for (p in 1:perday) {#
+		filename<-paste(dates[i]," plate_",p,".csv",sep="")#
+		data<-make_plate_d12(pd0=abs(rnorm(1,0.5,0.1)),pk1=abs(2*rnorm(1,1,0.2)),pk2=abs(8*rnorm(1,1,0.25)) )#
+		write.csv(data,filename, row.names = FALSE)#
+	}#
+}#
+##
+##
+# Demengeot set#
+##
+##
+#
+# Define as absolute values#
+ref_k3_ave=0.0001#
+ref_k3_sd=0.00001#
+#
+control_k3_ave=0.5#
+control_k3_sd=0.03#
+#
+inf_k3_ave=0.01#
+inf_k3_sd=1#
+log_inf_k3_ave=-2#
+log_inf_k3_sd=3#
+#
+make_plate_d12()#
+plot_plate_12( make_plate_d12(pd0=abs(rnorm(1,0.5,0.1)),pk1=abs(2*rnorm(1,1,0.3)),pk2=abs(8*rnorm(1,1,0.25)) ))#
+setwd("/Users/jorge/Desktop/ToolingUpForSystemsBiologyAndMedicineWorkshop2024/Werk/RawData/Demengeot")#
+controlsampleid<-sprintf("Control%03d",seq(1,1000))#
+infectedsampleid<-sprintf("Infected%03d",seq(1,3000))#
+controlsamplepointer=1#
+infectedsamplepointer=1#
+dates<-sort(sample(seq(as.Date('2023-01-01'), as.Date('2023-09-30'), by = "day"), 42))#
+#
+log_inf_k3_sd=2#
+log_inf_k3_ave_seq<-seq(-1,-4, length=length(dates))#
+for (i in 1:length(dates)) {#
+	log_inf_k3_ave= log_inf_k3_ave_seq[i]#
+	perday<-sample(4:8,1)#
+	for (p in 1:perday) {#
+		filename<-paste(dates[i]," plate_",p,".csv",sep="")#
+		data<-make_plate_d12(pd0=abs(rnorm(1,0.5,0.1)),pk1=abs(2*rnorm(1,1,0.2)),pk2=abs(8*rnorm(1,1,0.25)) )#
+		write.csv(data,filename, row.names = FALSE)#
+	}#
+}#
+##
+##
+# Howard set#
+##
+##
+#
+# Define as absolute values#
+ref_k3_ave=0.0001#
+ref_k3_sd=0.00001#
+#
+control_k3_ave=0.5#
+control_k3_sd=0.03#
+#
+inf_k3_ave=0.01#
+inf_k3_sd=1#
+log_inf_k3_ave=-2#
+log_inf_k3_sd=3#
+#
+make_plate_d12()#
+plot_plate_12( make_plate_d12(pd0=abs(rnorm(1,0.5,0.1)),pk1=abs(2*rnorm(1,1,0.3)),pk2=abs(8*rnorm(1,1,0.25)) ))#
+setwd("/Users/jorge/Desktop/ToolingUpForSystemsBiologyAndMedicineWorkshop2024/Werk/RawData/Howard")#
+controlsampleid<-sprintf("Control%03d",seq(1,1000))#
+infectedsampleid<-sprintf("Infected%03d",seq(1,3000))#
+controlsamplepointer=1#
+infectedsamplepointer=1#
+dates<-sort(sample(seq(as.Date('2023-08-01'), as.Date('2023-12-31'), by = "day"), 27))#
+#
+log_inf_k3_sd=2#
+log_inf_k3_ave_seq<-seq(-2.5,-4, length=length(dates))#
+for (i in 1:length(dates)) {#
+	log_inf_k3_ave= log_inf_k3_ave_seq[i]#
+	perday<-sample(4:8,1)#
+	for (p in 1:perday) {#
+		filename<-paste(format(dates[i],"%a %b %d %Y")," (P",p,").csv",sep="")#
+		data<-make_plate_d12(pd0=abs(rnorm(1,0.5,0.1)),pk1=abs(2.4*rnorm(1,1,0.2)),pk2=abs(10*rnorm(1,1,0.3)) )#
+		write.csv(data,filename, row.names = FALSE)#
+	}#
+}
+f<- function(x,k1,k2,k3) {#
+	return(k1+k2*x/(k3+x))#
+}#
+#
+af<-function(x,k1,k2,k3,k4) {#
+	return(  k1+k2*((atan((x-(k3))*k4)+ (pi/2))/pi ))#
+}#
+#
+nlc <- nls.control(maxiter = 150,minFactor=10^-6)#
+#
+setwd("/Users/jorge/Desktop/ToolingUpForSystemsBiologyAndMedicineWorkshop2024/Werk/RawData/Howard")#
+fnames<-dir()#
+splitpath<-strsplit(getwd(),"/")#
+splitpath[[1]]#
+laboratory<-tail(splitpath[[1]],1)#
+model_f<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,ref_k3=NA, standard_k3=NA,residuals_sd=NA)#
+par(ask=T)#
+for(filename in fnames) {#
+	sample_col=c("darkgray","black","gray")#
+	print(filename)#
+#
+	basename=paste(sub('\\.csv$', '', filename) )#
+#
+	platedate<-strsplit(basename," ")[[1]][1]#
+	plateid<-strsplit(basename," ")[[1]][2]#
+#
+	dat<-read.csv(filename)#
+	sample_type<-as.factor(substring(colnames(dat)[1:8], 1, 1))#
+	model_f_row<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,ref_k3=NA,standard_k3=NA,titer=NA, residuals_sd=NA)#
+#
+	model_f_plate<-model_f_row#
+	plot(log10(dat$dilution),dat[,1],t="p",pch=16,cex=2, col= sample_col[sample_type[1]],xlab="Relative Concentration",ylab="Signal", main= basename)#
+	for (i in 2:8)#
+		points(log10(dat$dilution),dat[,i],pch=16,cex=2,col=sample_col[sample_type[i]])#
+	s_min=min(dat[,1:8])	#
+	s_max=max(dat[,1:8])	#
+	abline(h=s_min,lty=2)#
+	abline(h=s_max,lty=2)#
+	abline(h=(s_min+s_max)/2,lty=2)#
+	log_d<-seq( log10(min(dat[,9])), log10(max(dat[,9])),length=100)#
+	d<-10^log_d#
+	for (i in 1:8)	{#
+		model_f_row$Lab=laboratory#
+		model_f_row$Date=platedate#
+		model_f_row$Plate=plateid#
+		model_f_row$Id=colnames(dat)[i]	#
+		data<-dat[,c(9,i)]#
+		colnames(data)<-c("d","s")#
+		ik3<-dat$dilution[ which(dat[,i]<=(s_min+s_max)/2)[1] ]#
+		print(ik3)#
+		if (max(dat[,i])<(s_min+s_max)/2) {#
+			f_fit<-nls(s ~ f(d,k1,s_max-s_min,k3),data, start=list(k1=s_min, k3=ik3) ,control=nlc)#
+			model_f_row$k1=coefficients(f_fit)[1]#
+			model_f_row$k2=s_max-s_min#
+			model_f_row$k3=coefficients(f_fit)[2]#
+			model_f_row$residuals_sd=summary(f_fit)$sigma#
+		} else {#
+			f_fit<-nls(s ~ f(d,k1,k2,k3),data, start=list(k1=s_min, k2=s_max-s_min,k3=ik3) ,control=nlc)#
+			model_f_row$k1=coefficients(f_fit)[1]#
+			model_f_row$k2=coefficients(f_fit)[2]#
+			model_f_row$k3=coefficients(f_fit)[3]#
+			model_f_row$residuals_sd=summary(f_fit)$sigma#
+		}#
+		lines(log_d,predict(f_fit,list(d=d)),col=sample_col[sample_type[i]])#
+	#	plot(log10(dat$dilution),data$s,pch=16,cex=2,col=sample_col[sample_type[i]])#
+	#	lines(log_d,af(log_d,k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2),col="red")#
+	#	lines(log_d,af(log_d,k1=1.779, k2=s_max-s_min,k3= -1.277,k4= 2.476),col="red")#
+		if (is.na(model_f_plate$Id[1])) {#
+			model_f_plate<-model_f_row#
+		} else {#
+			model_f_plate<-rbind(model_f_plate,model_f_row)#
+		}#
+	}#
+	index_R<-which(sample_type=="R")#
+	refmean<-mean(model_f_plate $k3[index_R])	#
+	model_f_plate $ref_k3=refmean#
+	model_f_plate $standard_k3= model_f_plate $k3/refmean#
+	model_f_plate $titer=1/	model_f_plate $standard_k3#
+		if (is.na(model_f$Id[1])) {#
+			model_f<-model_f_plate#
+		} else {#
+			model_f<-rbind(model_f, model_f_plate)#
+		}#
+}#
+par(ask=F)#
+#
+indexInfected<-grep("I",model_f$Id)#
+#
+plot(log10( model_f$titer[indexInfected]),pch=16)#
+#
+plot( ecdf(log10( model_f$titer[indexInfected])) )
+model_af<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,k4=NA,ref_k3=NA, standard_k3=NA,residuals_sd=NA)#
+par(ask=T)#
+for(filename in fnames) {#
+	sample_col=c("darkgray","black","gray")#
+	print(filename)#
+#
+	basename=paste(sub('\\.csv$', '', filename) )#
+#
+	platedate<-strsplit(basename," ")[[1]][1]#
+	plateid<-strsplit(basename," ")[[1]][2]#
+#
+	dat<-read.csv(filename)#
+	sample_type<-as.factor(substring(colnames(dat)[1:8], 1, 1))#
+	model_af_row<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,k4=NA,ref_k3=NA,standard_k3=NA,titer=NA, residuals_sd=NA)#
+#
+	model_af_plate<-model_atan_row#
+	plot(log10(dat$dilution),dat[,1],t="p",pch=16,cex=2, col= sample_col[sample_type[1]],xlab="Relative Concentration",ylab="Signal", main= basename)#
+	for (i in 2:8) {#
+		points(log10(dat$dilution),dat[,i],pch=16,cex=2,col=sample_col[sample_type[i]])#
+		}#
+	s_min=min(dat[,1:8])	#
+	s_max=max(dat[,1:8])	#
+	abline(h=s_min,lty=2)#
+	abline(h=s_max,lty=2)#
+	abline(h=(s_min+s_max)/2,lty=2)#
+	log_d<-seq( log10(min(dat[,9])), log10(max(dat[,9])),length=100)#
+	d<-10^log_d#
+	for (i in 1:8)	{#
+		model_af_row$Lab=laboratory#
+		model_af_row$Date=platedate#
+		model_af_row$Plate=plateid#
+		model_af_row$Id=colnames(dat)[i]	#
+		data<-dat[,c(9,i)]#
+		colnames(data)<-c("d","s")#
+		ik3<-data$d[ which(data$s<=(s_min+s_max)/2)[1] ]#
+		print(ik3)#
+		if (max(dat[,i])<(s_min+s_max)/2) {#
+			af_fit<-nls(s ~ af(log10(d),k1,s_max-s_min,k3,k4),  data, start=list(k1= s_min,k3= log10(ik3),k4=2),control=nlc)#
+			model_af_row$k1=coefficients(af_fit)[1]#
+			model_af_row$k2=s_max-s_min#
+			model_af_row$k3=coefficients(af_fit)[2]#
+			model_af_row$k4=coefficients(af_fit)[3]#
+			model_af_row$residuals_sd=summary(af_fit)$sigma#
+		} else {#
+			af_fit<-nls(s ~ af(log10(d),k1,k2,k3,k4),data, start=list(k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2) ,control=nlc)#
+			model_af_row$k1=coefficients(af_fit)[1]#
+			model_af_row$k2=coefficients(af_fit)[2]#
+			model_af_row$k3=coefficients(af_fit)[3]#
+			model_af_row$k4=coefficients(af_fit)[4]#
+			model_af_row$residuals_sd=summary(af_fit)$sigma#
+		}#
+		lines(log_d,predict(af_fit,list(d=d)),col=sample_col[sample_type[i]])#
+	#	plot(log10(dat$dilution),data$s,pch=16,cex=2,col=sample_col[sample_type[i]])#
+	#	lines(log_d,af(log_d,k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2),col="red")#
+	#	lines(log_d,af(log_d,k1=1.779, k2=s_max-s_min,k3= -1.277,k4= 2.476),col="red")#
+		if (is.na(model_af_plate$Id[1])) {#
+			model_af_plate<-model_af_row#
+		} else {#
+			model_af_plate<-rbind(model_af_plate,model_af_row)#
+		}#
+	}#
+	index_R<-which(sample_type=="R")#
+	refmean<-mean(model_af_plate $k3[index_R])	#
+	model_af_plate $ref_k3=refmean#
+	model_af_plate $standard_k3= model_af_plate $k3-refmean#
+	model_af_plate $titer=1/	10^model_af_plate $standard_k3#
+		if (is.na(model_af$Id[1])) {#
+			model_af<-model_af_plate#
+		} else {#
+			model_af<-rbind(model_af, model_af_plate)#
+		}#
+}#
+#
+par(ask=FALSE)#
+plot(log10( model_af$titer[indexInfected]),pch=16)#
+#
+plot( ecdf(log10( model_af$titer[indexInfected])) )#
+plot(log10( model_f$titer[indexInfected]),log10( model_af$titer[indexInfected]),pch=16,xlab="log10 titer, Michaelis-Menten", ylab="log10 titer, rescaled atan")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)#
+plot(model_f$residuals_sd,model_af$residuals_sd,cex=0.5,pch=16,xlab="Residuals Sigma, Michaelis-Menten", ylab="Residuals Sigma, rescaled atan")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)
+par(ask=FALSE)
+plot(log10( model_af$titer[indexInfected]),pch=16)
+plot( ecdf(log10( model_af$titer[indexInfected])) )
+plot(log10( model_f$titer[indexInfected]),log10( model_af$titer[indexInfected]),pch=16,xlab="log10 titer, Michaelis-Menten", ylab="log10 titer, rescaled atan")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)
+plot(model_f$residuals_sd,model_af$residuals_sd,cex=0.5,pch=16,xlab="Residuals Sigma, Michaelis-Menten", ylab="Residuals Sigma, rescaled atan")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)
+setwd("/Users/jorge/Desktop/ToolingUpForSystemsBiologyAndMedicineWorkshop2024/Werk/RawData/Demengeot")#
+fnames<-dir()#
+splitpath<-strsplit(getwd(),"/")#
+splitpath[[1]]#
+laboratory<-tail(splitpath[[1]],1)#
+model_f<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,ref_k3=NA, standard_k3=NA,residuals_sd=NA)#
+par(ask=T)#
+for(filename in fnames) {#
+	sample_col=c("darkgray","black","gray")#
+	print(filename)#
+#
+	basename=paste(sub('\\.csv$', '', filename) )#
+#
+	platedate<-strsplit(basename," ")[[1]][1]#
+	plateid<-strsplit(basename," ")[[1]][2]#
+#
+	dat<-read.csv(filename)#
+	sample_type<-as.factor(substring(colnames(dat)[1:8], 1, 1))#
+	model_f_row<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,ref_k3=NA,standard_k3=NA,titer=NA, residuals_sd=NA)#
+#
+	model_f_plate<-model_f_row#
+	plot(log10(dat$dilution),dat[,1],t="p",pch=16,cex=2, col= sample_col[sample_type[1]],xlab="Relative Concentration",ylab="Signal", main= basename)#
+	for (i in 2:8)#
+		points(log10(dat$dilution),dat[,i],pch=16,cex=2,col=sample_col[sample_type[i]])#
+	s_min=min(dat[,1:8])	#
+	s_max=max(dat[,1:8])	#
+	abline(h=s_min,lty=2)#
+	abline(h=s_max,lty=2)#
+	abline(h=(s_min+s_max)/2,lty=2)#
+	log_d<-seq( log10(min(dat[,9])), log10(max(dat[,9])),length=100)#
+	d<-10^log_d#
+	for (i in 1:8)	{#
+		model_f_row$Lab=laboratory#
+		model_f_row$Date=platedate#
+		model_f_row$Plate=plateid#
+		model_f_row$Id=colnames(dat)[i]	#
+		data<-dat[,c(9,i)]#
+		colnames(data)<-c("d","s")#
+		ik3<-dat$dilution[ which(dat[,i]<=(s_min+s_max)/2)[1] ]#
+		print(ik3)#
+		if (max(dat[,i])<(s_min+s_max)/2) {#
+			f_fit<-nls(s ~ f(d,k1,s_max-s_min,k3),data, start=list(k1=s_min, k3=ik3) ,control=nlc)#
+			model_f_row$k1=coefficients(f_fit)[1]#
+			model_f_row$k2=s_max-s_min#
+			model_f_row$k3=coefficients(f_fit)[2]#
+			model_f_row$residuals_sd=summary(f_fit)$sigma#
+		} else {#
+			f_fit<-nls(s ~ f(d,k1,k2,k3),data, start=list(k1=s_min, k2=s_max-s_min,k3=ik3) ,control=nlc)#
+			model_f_row$k1=coefficients(f_fit)[1]#
+			model_f_row$k2=coefficients(f_fit)[2]#
+			model_f_row$k3=coefficients(f_fit)[3]#
+			model_f_row$residuals_sd=summary(f_fit)$sigma#
+		}#
+		lines(log_d,predict(f_fit,list(d=d)),col=sample_col[sample_type[i]])#
+	#	plot(log10(dat$dilution),data$s,pch=16,cex=2,col=sample_col[sample_type[i]])#
+	#	lines(log_d,af(log_d,k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2),col="red")#
+	#	lines(log_d,af(log_d,k1=1.779, k2=s_max-s_min,k3= -1.277,k4= 2.476),col="red")#
+		if (is.na(model_f_plate$Id[1])) {#
+			model_f_plate<-model_f_row#
+		} else {#
+			model_f_plate<-rbind(model_f_plate,model_f_row)#
+		}#
+	}#
+	index_R<-which(sample_type=="R")#
+	refmean<-mean(model_f_plate $k3[index_R])	#
+	model_f_plate $ref_k3=refmean#
+	model_f_plate $standard_k3= model_f_plate $k3/refmean#
+	model_f_plate $titer=1/	model_f_plate $standard_k3#
+		if (is.na(model_f$Id[1])) {#
+			model_f<-model_f_plate#
+		} else {#
+			model_f<-rbind(model_f, model_f_plate)#
+		}#
+}
+indexInfected<-grep("I",model_f$Id)#
+#
+plot(log10( model_f$titer[indexInfected]),pch=16)#
+#
+plot( ecdf(log10( model_f$titer[indexInfected])) )
+model_af<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,k4=NA,ref_k3=NA, standard_k3=NA,residuals_sd=NA)#
+par(ask=T)#
+for(filename in fnames) {#
+	sample_col=c("darkgray","black","gray")#
+	print(filename)#
+#
+	basename=paste(sub('\\.csv$', '', filename) )#
+#
+	platedate<-strsplit(basename," ")[[1]][1]#
+	plateid<-strsplit(basename," ")[[1]][2]#
+#
+	dat<-read.csv(filename)#
+	sample_type<-as.factor(substring(colnames(dat)[1:8], 1, 1))#
+	model_af_row<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,k4=NA,ref_k3=NA,standard_k3=NA,titer=NA, residuals_sd=NA)#
+#
+	model_af_plate<-model_atan_row#
+	plot(log10(dat$dilution),dat[,1],t="p",pch=16,cex=2, col= sample_col[sample_type[1]],xlab="Relative Concentration",ylab="Signal", main= basename)#
+	for (i in 2:8) {#
+		points(log10(dat$dilution),dat[,i],pch=16,cex=2,col=sample_col[sample_type[i]])#
+		}#
+	s_min=min(dat[,1:8])	#
+	s_max=max(dat[,1:8])	#
+	abline(h=s_min,lty=2)#
+	abline(h=s_max,lty=2)#
+	abline(h=(s_min+s_max)/2,lty=2)#
+	log_d<-seq( log10(min(dat[,9])), log10(max(dat[,9])),length=100)#
+	d<-10^log_d#
+	for (i in 1:8)	{#
+		model_af_row$Lab=laboratory#
+		model_af_row$Date=platedate#
+		model_af_row$Plate=plateid#
+		model_af_row$Id=colnames(dat)[i]	#
+		data<-dat[,c(9,i)]#
+		colnames(data)<-c("d","s")#
+		ik3<-data$d[ which(data$s<=(s_min+s_max)/2)[1] ]#
+		print(ik3)#
+		if (max(dat[,i])<(s_min+s_max)/2) {#
+			af_fit<-nls(s ~ af(log10(d),k1,s_max-s_min,k3,k4),  data, start=list(k1= s_min,k3= log10(ik3),k4=2),control=nlc)#
+			model_af_row$k1=coefficients(af_fit)[1]#
+			model_af_row$k2=s_max-s_min#
+			model_af_row$k3=coefficients(af_fit)[2]#
+			model_af_row$k4=coefficients(af_fit)[3]#
+			model_af_row$residuals_sd=summary(af_fit)$sigma#
+		} else {#
+			af_fit<-nls(s ~ af(log10(d),k1,k2,k3,k4),data, start=list(k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2) ,control=nlc)#
+			model_af_row$k1=coefficients(af_fit)[1]#
+			model_af_row$k2=coefficients(af_fit)[2]#
+			model_af_row$k3=coefficients(af_fit)[3]#
+			model_af_row$k4=coefficients(af_fit)[4]#
+			model_af_row$residuals_sd=summary(af_fit)$sigma#
+		}#
+		lines(log_d,predict(af_fit,list(d=d)),col=sample_col[sample_type[i]])#
+	#	plot(log10(dat$dilution),data$s,pch=16,cex=2,col=sample_col[sample_type[i]])#
+	#	lines(log_d,af(log_d,k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2),col="red")#
+	#	lines(log_d,af(log_d,k1=1.779, k2=s_max-s_min,k3= -1.277,k4= 2.476),col="red")#
+		if (is.na(model_af_plate$Id[1])) {#
+			model_af_plate<-model_af_row#
+		} else {#
+			model_af_plate<-rbind(model_af_plate,model_af_row)#
+		}#
+	}#
+	index_R<-which(sample_type=="R")#
+	refmean<-mean(model_af_plate $k3[index_R])	#
+	model_af_plate $ref_k3=refmean#
+	model_af_plate $standard_k3= model_af_plate $k3-refmean#
+	model_af_plate $titer=1/	10^model_af_plate $standard_k3#
+		if (is.na(model_af$Id[1])) {#
+			model_af<-model_af_plate#
+		} else {#
+			model_af<-rbind(model_af, model_af_plate)#
+		}#
+}#
+#
+par(ask=FALSE)
+par(ask=FALSE)#
+plot(log10( model_af$titer[indexInfected]),pch=16)#
+#
+plot( ecdf(log10( model_af$titer[indexInfected])) )
+plot(log10( model_af$titer[indexInfected]),pch=16)
+plot(log10( model_f$titer[indexInfected]),log10( model_af$titer[indexInfected]),pch=16,xlab="log10 titer, Michaelis-Menten", ylab="log10 titer, rescaled atan")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)
+plot(model_f$residuals_sd,model_af$residuals_sd,cex=0.5,pch=16,xlab="Residuals Sigma, Michaelis-Menten", ylab="Residuals Sigma, rescaled atan")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)
+plot(model_f$residuals_sd,model_af$residuals_sd,cex=0.5,pch=16,xlab="Residuals Sigma, Langmuir", ylab="Residuals Sigma, rescaled atan")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)
+plot(log10( model_f$titer[indexInfected]),log10( model_af$titer[indexInfected]),pch=16,xlab="log10 titer, Michaelis-Menten", ylab="log10 titer, rescaled atan")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)
+plot(model_f$residuals_sd,model_af$residuals_sd,cex=0.5,pch=16,xlab="Residuals Sigma, Langmuir", ylab="Residuals Sigma, rescaled atan")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)
+generate_heterogeneous_elisa<-function(dn=12,d0=1,dfac=4,k1=2,k2=10,k3=0.001,k3a=0.01,fa=0.33, h=1) {#
+	d<-d0*(1/4)^(1:12)#
+	s<-k1+(1-fa)*k2*d^h/(k3^h+d^h)+(fa)*k2*d^h/(k3a^h+d^h)#
+	dr<-d*rnorm(dn,1,0.15)#
+	sr<-k1+(k1+(1-fa)*k2*d^h/(k3^h+d^h)+(fa)*k2*d^h/(k3a^h+d^h)) *rnorm(dn,1,0.04)+k1*rnorm(dn,0,0.05)#
+    #the data is built with the supposed dilution and the signal with the two errors in dilution and signal#
+	return(data.frame(d=d,s=sr) )#
+#
+}
+par(mfrow=c(1,1))#
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+summary(ref_k3)#
+dat<-generate_homogeneous_elisa(k3= ref_k3[1])#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (x in ref_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+summary(ref_k3)#
+dat<-generate_homogeneous_elisa(k3= ref_k3[1],h=0.7)#
+lines(log10(dat$d),dat$s,t="l",col="gray")#
+for (x in ref_k3) {#
+	dat<-generate_homogeneous_elisa(k3= x,h=0.7)#
+	lines(log10(dat$d),dat$s,t="l",col="black")#
+}
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3a<-abs(rnorm(50,0.01,0.001))#
+fa<-0.3333#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3a=ref_k3a, fa= ref_fa)#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (x in ref_k3) {#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3a=ref_k3a, fa= ref_fa)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3a<-abs(rnorm(50,0.01,0.001))#
+ref_fa<-0.3333#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3a=ref_k3a, fa= ref_fa)#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (x in ref_k3) {#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3a=ref_k3a, fa= ref_fa)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3a<-abs(rnorm(50,0.01,0.001))#
+ref_fa<-0.3333#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3a=ref_k3a, fa= ref_fa, h=0.7)#
+lines(log10(dat$d),dat$s,t="l",col="gray")#
+for (x in ref_k3) {#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3a=ref_k3a, fa= ref_fa, h=0.7)#
+	lines(log10(dat$d),dat$s,t="l",col="black")#
+}
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3a<-abs(rnorm(50,0.01,0.001))#
+ref_fa<-0.3333#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3a=ref_k3a[1], fa= ref_fa)#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3) ){#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3a=ref_k3a[i], fa= ref_fa)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3a<-abs(rnorm(50,0.01,0.001))#
+ref_fa<-0.3333#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3a=ref_k3a[1], fa= ref_fa, h=0.7)#
+lines(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3)) {#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3a=ref_k3a[i], fa= ref_fa, h=0.7)#
+	lines(log10(dat$d),dat$s,t="l",col="black")#
+}
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3a<-abs(rnorm(50,0.01,0.001))#
+ref_fa<-0.3333#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3a=ref_k3a[1], fa= ref_fa)#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3) ){#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3a=ref_k3a[i], fa= ref_fa)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3a<-abs(rnorm(50,0.01,0.001))#
+ref_fa<-0.3333#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3a=ref_k3a[1], fa= ref_fa, h=0.7)#
+lines(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3)) {#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3a=ref_k3a[i], fa= ref_fa, h=0.7)#
+	lines(log10(dat$d),dat$s,t="l",col="black")#
+}
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3a<-abs(rnorm(50,0.01,0.001))#
+ref_fa<-0.3333#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3a=ref_k3a[1], fa= ref_fa)#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3) ){#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3a=ref_k3a[i], fa= ref_fa)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}
+generate_heterogeneous_elisa<-function(dn=12,d0=1,dfac=4,k1=2,k2=10,k3=0.001,k3a=0.01,fa=0.33, h=1) {#
+	d<-d0*(1/4)^(1:12)#
+	s<-k1+(1-fa)*k2*d^h/(k3^h+d^h)+(fa)*k2*d^h/(k3a^h+d^h)#
+	dr<-d*rnorm(dn,1,0.15)#
+	sr<-k1+((1-fa)*k2*d^h/(k3^h+d^h)+(fa)*k2*d^h/(k3a^h+d^h)) *rnorm(dn,1,0.04)+k1*rnorm(dn,0,0.05)#
+    #the data is built with the supposed dilution and the signal with the two errors in dilution and signal#
+	return(data.frame(d=d,s=sr) )#
+#
+}
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3a<-abs(rnorm(50,0.01,0.001))#
+ref_fa<-0.3333#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3a=ref_k3a[1], fa= ref_fa)#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3) ){#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3a=ref_k3a[i], fa= ref_fa)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3a<-abs(rnorm(50,0.01,0.001))#
+ref_fa<-0.3333#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3a=ref_k3a[1], fa= ref_fa, h=0.7)#
+lines(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3)) {#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3a=ref_k3a[i], fa= ref_fa, h=0.7)#
+	lines(log10(dat$d),dat$s,t="l",col="black")#
+}
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3a<-abs(rnorm(50,0.01,0.001))#
+ref_fa<-0.5#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3a=ref_k3a[1], fa= ref_fa)#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3) ){#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3a=ref_k3a[i], fa= ref_fa)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3a<-abs(rnorm(50,0.01,0.001))#
+ref_fa<-0.5#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3a=ref_k3a[1], fa= ref_fa, h=0.7)#
+lines(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3)) {#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3a=ref_k3a[i], fa= ref_fa, h=0.7)#
+	lines(log10(dat$d),dat$s,t="l",col="black")#
+}
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3a<-abs(rnorm(50,0.01,0.001))#
+ref_fa<-0.2#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3a=ref_k3a[1], fa= ref_fa)#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3) ){#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3a=ref_k3a[i], fa= ref_fa)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3a<-abs(rnorm(50,0.01,0.001))#
+ref_fa<-0.2#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3a=ref_k3a[1], fa= ref_fa, h=0.7)#
+lines(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3)) {#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3a=ref_k3a[i], fa= ref_fa, h=0.7)#
+	lines(log10(dat$d),dat$s,t="l",col="black")#
+}
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3a<-abs(rnorm(50,0.05,0.001))#
+ref_fa<-0.2#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3a=ref_k3a[1], fa= ref_fa)#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3) ){#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3a=ref_k3a[i], fa= ref_fa)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3a<-abs(rnorm(50,0.05,0.001))#
+ref_fa<-0.2#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3a=ref_k3a[1], fa= ref_fa, h=0.7)#
+lines(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3)) {#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3a=ref_k3a[i], fa= ref_fa, h=0.7)#
+	lines(log10(dat$d),dat$s,t="l",col="black")#
+}
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3a<-abs(rnorm(50,0.05,0.001))#
+ref_fa<-0.3#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3a=ref_k3a[1], fa= ref_fa)#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3) ){#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3a=ref_k3a[i], fa= ref_fa)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3a<-abs(rnorm(50,0.05,0.001))#
+ref_fa<-0.3#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3a=ref_k3a[1], fa= ref_fa, h=0.7)#
+lines(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3)) {#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3a=ref_k3a[i], fa= ref_fa, h=0.7)#
+	lines(log10(dat$d),dat$s,t="l",col="black")#
+}
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3a<-abs(rnorm(50,0.05,0.001))#
+ref_fa<-0.5#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3a=ref_k3a[1], fa= ref_fa)#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3) ){#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3a=ref_k3a[i], fa= ref_fa)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3a<-abs(rnorm(50,0.05,0.001))#
+ref_fa<-0.5#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3a=ref_k3a[1], fa= ref_fa, h=0.7)#
+lines(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3)) {#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3a=ref_k3a[i], fa= ref_fa, h=0.7)#
+	lines(log10(dat$d),dat$s,t="l",col="black")#
+}
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3a<-abs(rnorm(50,0.05,0.001))#
+ref_fa<-0.5#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3a=ref_k3a[1], fa= ref_fa)#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3) ){#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3a=ref_k3a[i], fa= ref_fa)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3a<-abs(rnorm(50,0.05,0.001))#
+ref_fa<-0.4#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3a=ref_k3a[1], fa= ref_fa)#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3) ){#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3a=ref_k3a[i], fa= ref_fa)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3a<-abs(rnorm(50,0.05,0.001))#
+ref_fa<-0.4#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3a=ref_k3a[1], fa= ref_fa, h=0.7)#
+lines(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3)) {#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3a=ref_k3a[i], fa= ref_fa, h=0.7)#
+	lines(log10(dat$d),dat$s,t="l",col="black")#
+}
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3a<-abs(rnorm(50,0.05,0.001))#
+ref_fa<-0.4#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3a=ref_k3a[1], fa= ref_fa)#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3) ){#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3a=ref_k3a[i], fa= ref_fa)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3a<-abs(rnorm(50,0.05,0.001))#
+ref_fa<-0.4#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3a=ref_k3a[1], fa= ref_fa, h=0.7)#
+lines(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3)) {#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3a=ref_k3a[i], fa= ref_fa, h=0.7)#
+	lines(log10(dat$d),dat$s,t="l",col="black")#
+}
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3a<-abs(rnorm(50,0.05,0.001))#
+ref_fa<-0.4#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3a=ref_k3a[1], fa= ref_fa, h=0.8)#
+lines(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3)) {#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3a=ref_k3a[i], fa= ref_fa, h=0.8)#
+	lines(log10(dat$d),dat$s,t="l",col="black")#
+}
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3a<-abs(rnorm(50,0.05,0.001))#
+ref_fa<-0.4#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3a=ref_k3a[1], fa= ref_fa)#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3) ){#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3a=ref_k3a[i], fa= ref_fa)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3a<-abs(rnorm(50,0.05,0.001))#
+ref_fa<-0.4#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3a=ref_k3a[1], fa= ref_fa, h=0.7)#
+lines(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3)) {#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3a=ref_k3a[i], fa= ref_fa, h=0.7)#
+	lines(log10(dat$d),dat$s,t="l",col="black")#
+}
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3a<-abs(rnorm(50,0.05,0.001))#
+ref_fa<-0.4#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3a=ref_k3a[1], fa= ref_fa)#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3) ){#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3a=ref_k3a[i], fa= ref_fa)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3a<-abs(rnorm(50,0.05,0.001))#
+ref_fa<-0.4#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3a=ref_k3a[1], fa= ref_fa, h=0.7)#
+lines(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3)) {#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3a=ref_k3a[i], fa= ref_fa, h=0.7)#
+	lines(log10(dat$d),dat$s,t="l",col="black")#
+}
+generate_heterogeneous_elisa<-function(dn=12,d0=1,dfac=4,k1=2,k2=10,k3=0.001,k3fac=100.0,fa=0.33, h=1) {#
+	d<-d0*(1/4)^(1:12)#
+	s<-k1+(1-fa)*k2*d^h/(k3^h+d^h)+(fa)*k2*d^h/((k3fac))^h+d^h)#
+	dr<-d*rnorm(dn,1,0.15)#
+	sr<-k1+((1-fa)*k2*d^h/(k3^h+d^h)+(fa)*k2*d^h/((k3a* k3fac)^h+d^h)) *rnorm(dn,1,0.04)+k1*rnorm(dn,0,0.05)#
+    #the data is built with the supposed dilution and the signal with the two errors in dilution and signal#
+	return(data.frame(d=d,s=sr) )#
+#
+}
+generate_heterogeneous_elisa<-function(dn=12,d0=1,dfac=4,k1=2,k2=10,k3=0.001,k3fac=100.0,fa=0.33, h=1) {#
+	d<-d0*(1/4)^(1:12)#
+	s<-k1+(1-fa)*k2*d^h/(k3^h+d^h)+(fa)*k2*d^h/((k3fac))^h+d^h)#
+	dr<-d*rnorm(dn,1,0.15)#
+	sr<-k1+((1-fa)*k2*d^h/(k3^h+d^h)+(fa)*k2*d^h/((k3a* k3fac)^h+d^h)) *rnorm(dn,1,0.04)+k1*rnorm(dn,0,0.05)#
+    #the data is built with the supposed dilution and the signal with the two errors in dilution and signal#
+	return(data.frame(d=d,s=sr) )#
+#
+}
+generate_heterogeneous_elisa<-function(dn=12,d0=1,dfac=4,k1=2,k2=10,k3=0.001,k3fac=100.0,fa=0.33, h=1) {#
+	d<-d0*(1/4)^(1:12)#
+	s<-k1+(1-fa)*k2*d^h/(k3^h+d^h)+(fa)*k2*d^h/((k3fac)^h+d^h)#
+	dr<-d*rnorm(dn,1,0.15)#
+	sr<-k1+((1-fa)*k2*d^h/(k3^h+d^h)+(fa)*k2*d^h/((k3a* k3fac)^h+d^h)) *rnorm(dn,1,0.04)+k1*rnorm(dn,0,0.05)#
+    #the data is built with the supposed dilution and the signal with the two errors in dilution and signal#
+	return(data.frame(d=d,s=sr) )#
+#
+}
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3fac<-abs(rnorm(50,100.,2.0))#
+ref_fa<-0.4#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3a=ref_k3a[1], fa= ref_fa)#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3) ){#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3a=ref_k3a[i], fa= ref_fa)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3fac <-abs(rnorm(50,100.,2.0))#
+ref_fa<-0.4#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3fac=ref_k3fac[1], fa= ref_fa, h=0.7)#
+lines(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3)) {#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3fac= ref_k3fac[i], fa= ref_fa, h=0.7)#
+	lines(log10(dat$d),dat$s,t="l",col="black")#
+}
+generate_heterogeneous_elisa<-function(dn=12,d0=1,dfac=4,k1=2,k2=10,k3=0.001,k3fac=100.0,fa=0.33, h=1) {#
+	d<-d0*(1/4)^(1:12)#
+	s<-k1+(1-fa)*k2*d^h/(k3^h+d^h)+(fa)*k2*d^h/((k3* k3fac)^h+d^h)#
+	dr<-d*rnorm(dn,1,0.15)#
+	sr<-k1+((1-fa)*k2*d^h/(k3^h+d^h)+(fa)*k2*d^h/((k3* k3fac)^h+d^h)) *rnorm(dn,1,0.04)+k1*rnorm(dn,0,0.05)#
+    #the data is built with the supposed dilution and the signal with the two errors in dilution and signal#
+	return(data.frame(d=d,s=sr) )#
+#
+}
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3fac<-abs(rnorm(50,100.,2.0))#
+ref_fa<-0.4#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3a=ref_k3fac[1], fa= ref_fa)#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3) ){#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3a=ref_k3fac[i], fa= ref_fa)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3fac <-abs(rnorm(50,100.,2.0))#
+ref_fa<-0.4#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3fac=ref_k3fac[1], fa= ref_fa, h=0.7)#
+lines(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3)) {#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3fac= ref_k3fac[i], fa= ref_fa, h=0.7)#
+	lines(log10(dat$d),dat$s,t="l",col="black")#
+}
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3fac<-abs(rnorm(50,100.,2.0))#
+ref_fa<-0.4#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3a=ref_k3fac[1], fa= ref_fa)#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3) ){#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3a=ref_k3fac[i], fa= ref_fa)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3fac<-abs(rnorm(50,100.,2.0))#
+ref_fa<-0.4#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3fac=ref_k3fac[1], fa= ref_fa)#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3) ){#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3fac=ref_k3fac[i], fa= ref_fa)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3fac <-abs(rnorm(50,100.,2.0))#
+ref_fa<-0.4#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3fac=ref_k3fac[1], fa= ref_fa, h=0.7)#
+lines(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3)) {#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3fac= ref_k3fac[i], fa= ref_fa, h=0.7)#
+	lines(log10(dat$d),dat$s,t="l",col="black")#
+}
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3fac<-abs(rnorm(50,100.,0.0))#
+ref_fa<-0.4#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3fac=ref_k3fac[1], fa= ref_fa)#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3) ){#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3fac=ref_k3fac[i], fa= ref_fa)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3fac <-abs(rnorm(50,100.,0.0))#
+ref_fa<-0.4#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3fac=ref_k3fac[1], fa= ref_fa, h=0.7)#
+lines(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3)) {#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3fac= ref_k3fac[i], fa= ref_fa, h=0.7)#
+	lines(log10(dat$d),dat$s,t="l",col="black")#
+}
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3fac<-abs(rnorm(50,200.,0.0))#
+ref_fa<-0.4#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3fac=ref_k3fac[1], fa= ref_fa)#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3) ){#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3fac=ref_k3fac[i], fa= ref_fa)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3fac <-abs(rnorm(50,200.,0.0))#
+ref_fa<-0.4#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3fac=ref_k3fac[1], fa= ref_fa, h=0.7)#
+lines(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3)) {#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3fac= ref_k3fac[i], fa= ref_fa, h=0.7)#
+	lines(log10(dat$d),dat$s,t="l",col="black")#
+}
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3fac<-abs(rnorm(50,200.,0.0))#
+ref_fa<-0.45#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3fac=ref_k3fac[1], fa= ref_fa)#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3) ){#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3fac=ref_k3fac[i], fa= ref_fa)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3fac <-abs(rnorm(50,200.,0.0))#
+ref_fa<-0.45#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3fac=ref_k3fac[1], fa= ref_fa, h=0.7)#
+lines(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3)) {#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3fac= ref_k3fac[i], fa= ref_fa, h=0.7)#
+	lines(log10(dat$d),dat$s,t="l",col="black")#
+}
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3fac<-abs(rnorm(50,300.,0.0))#
+ref_fa<-0.45#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3fac=ref_k3fac[1], fa= ref_fa)#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3) ){#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3fac=ref_k3fac[i], fa= ref_fa)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3fac <-abs(rnorm(50,300.,0.0))#
+ref_fa<-0.45#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3fac=ref_k3fac[1], fa= ref_fa, h=0.7)#
+lines(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3)) {#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3fac= ref_k3fac[i], fa= ref_fa, h=0.7)#
+	lines(log10(dat$d),dat$s,t="l",col="black")#
+}
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3fac<-abs(rnorm(50,500.,0.0))#
+ref_fa<-0.45#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3fac=ref_k3fac[1], fa= ref_fa)#
+plot(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3) ){#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3fac=ref_k3fac[i], fa= ref_fa)#
+	lines(log10(dat$d),dat$s,t="l",col="gray")#
+}#
+ref_k3<-abs(rnorm(50,0.0001,0.00001))#
+ref_k3fac <-abs(rnorm(50,500.,0.0))#
+ref_fa<-0.45#
+summary(ref_k3)#
+dat<-generate_heterogeneous_elisa(k3= ref_k3[1], k3fac=ref_k3fac[1], fa= ref_fa, h=0.7)#
+lines(log10(dat$d),dat$s,t="l",col="gray")#
+for (i in 1:length(ref_k3)) {#
+	dat<-generate_heterogeneous_elisa(k3= ref_k3[i], k3fac= ref_k3fac[i], fa= ref_fa, h=0.7)#
+	lines(log10(dat$d),dat$s,t="l",col="black")#
+}
+generate_heterogeneous_elisa<-function(dn=12,d0=1,dfac=4,k1=2,k2=10,k3=0.001,k3fac=500.0,fa=0.45, h=1) {#
+	d<-d0*(1/4)^(1:12)#
+	s<-k1+(1-fa)*k2*d^h/(k3^h+d^h)+(fa)*k2*d^h/((k3* k3fac)^h+d^h)#
+	dr<-d*rnorm(dn,1,0.15)#
+	sr<-k1+((1-fa)*k2*d^h/(k3^h+d^h)+(fa)*k2*d^h/((k3* k3fac)^h+d^h)) *rnorm(dn,1,0.04)+k1*rnorm(dn,0,0.05)#
+    #the data is built with the supposed dilution and the signal with the two errors in dilution and signal#
+	return(data.frame(d=d,s=sr) )#
+#
+}
+make_plate_d12_heterogeneous<-function(ref=2,control=2,inf=4,pk1=2,pk2=10,pdfac=4, pd0=1.0) {#
+	dat<-as.data.frame(matrix(NA,nrow=12,ncol=8))#
+	c<-0;#
+	for (i in 1:ref) {#
+		c=c+1#
+		dat[,c]<-generate_heterogeneous_elisa(k3= abs(rnorm(1,ref_k3_ave, ref_k3_sd)),k1=pk1,k2=pk2,dfac=pdfac, d0=pd0,h=0.7)$s#
+		dat[,c]<-round(dat[,c],3)#
+		colnames(dat)[c]<-sprintf("Reference%d",i)#
+		}#
+	for (i in 1: control) {#
+		c=c+1#
+		dat[,c]<-generate_heterogeneous_elisa(k3= abs(rnorm(1,control_k3_ave, control_k3_sd)),k1=pk1,k2=pk2,dfac=pdfac, d0=pd0,h=0.7)$s#
+		dat[,c]<-round(dat[,c],3)#
+		colnames(dat)[c]<-controlsampleid[controlsamplepointer]; #
+		controlsamplepointer <<- controlsamplepointer +1#
+		}#
+	for (i in 1: inf) {#
+		c=c+1		#
+		dat[,c]<-generate_heterogeneous_elisa(k3= infected_k3_value(ref_k3= ref_k3_ave,ref_k3_sd= ref_k3_sd,control_k3= control_k3_ave, control_k3_sd= control_k3_sd, log_inf_k3= log_inf_k3_ave,log_inf_k3_sd= log_inf_k3_sd),#
+			k1=pk1,k2=pk2,dfac=pdfac, d0=pd0,h=0.7)$s#
+	 	dat[,c]<-round(dat[,c],3)#
+		colnames(dat)[c]<-infectedsampleid[infectedsamplepointer]; #
+		infectedsamplepointer <<- infectedsamplepointer +1;#
+		}#
+	dat$dilution<-generate_heterogeneous_elisa(k3= abs(rnorm(1, inf_k3_ave, inf_k3_sd)),k1=pk1,k2=pk2,dfac=pdfac, d0=pd0,h=0.7)$d#
+	return(dat)#
+}
+make_plate_d12_heterogeneous()
+make_plate_d12_heterogeneous
+plot_plate_12( make_plate_d12_heterogeneous(pd0=abs(rnorm(1,0.5,0.1)),pk1=abs(2*rnorm(1,1,0.3)),pk2=abs(8*rnorm(1,1,0.25)) ))
+log_inf_k3_ave_seq<-rep(-4, length=length(dates))
+log_inf_k3_ave_seq
+ref_k3_ave=0.0001#
+ref_k3_sd=0.00001#
+#
+control_k3_ave=0.5#
+control_k3_sd=0.03#
+#
+inf_k3_ave=0.01#
+inf_k3_sd=1#
+log_inf_k3_ave=-2#
+log_inf_k3_sd=3#
+#
+make_plate_d12_heterogeneous()#
+plot_plate_12( make_plate_d12_heterogeneous(pd0=abs(rnorm(1,0.5,0.1)),pk1=abs(2*rnorm(1,1,0.3)),pk2=abs(8*rnorm(1,1,0.25)) ))#
+setwd("/Users/jorge/Desktop/ToolingUpForSystemsBiologyAndMedicineWorkshop2024/Werk/RawData/HowardNew")#
+controlsampleid<-sprintf("Control%03d",seq(1,1000))#
+infectedsampleid<-sprintf("Infected%03d",seq(1,3000))#
+controlsamplepointer=1#
+infectedsamplepointer=1#
+dates<-sort(sample(seq(as.Date('2024-04-01'), as.Date('2024-07-31'), by = "day"), 19))#
+#
+log_inf_k3_sd=2#
+log_inf_k3_ave_seq<-rep(-4, length=length(dates))#
+for (i in 1:length(dates)) {#
+	log_inf_k3_ave= log_inf_k3_ave_seq[i]#
+	perday<-sample(4:8,1)#
+	for (p in 1:perday) {#
+		filename<-paste(format(dates[i],"%a %b %d %Y")," (P",p,").csv",sep="")#
+		data<-make_plate_d12(pd0=abs(rnorm(1,0.5,0.1)),pk1=abs(2.4*rnorm(1,1,0.2)),pk2=abs(10*rnorm(1,1,0.3)) )#
+		write.csv(data,filename, row.names = FALSE)#
+	}#
+}
+setwd("/Users/jorge/Desktop/ToolingUpForSystemsBiologyAndMedicineWorkshop2024/Werk/RawData/HowardNew")#
+fnames<-dir()#
+splitpath<-strsplit(getwd(),"/")#
+splitpath[[1]]#
+laboratory<-tail(splitpath[[1]],1)#
+model_f<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,ref_k3=NA, standard_k3=NA,residuals_sd=NA)#
+par(ask=T)#
+for(filename in fnames) {#
+	sample_col=c("darkgray","black","gray")#
+	print(filename)#
+#
+	basename=paste(sub('\\.csv$', '', filename) )#
+#
+	platedate<-strsplit(basename," ")[[1]][1]#
+	plateid<-strsplit(basename," ")[[1]][2]#
+#
+	dat<-read.csv(filename)#
+	sample_type<-as.factor(substring(colnames(dat)[1:8], 1, 1))#
+	model_f_row<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,ref_k3=NA,standard_k3=NA,titer=NA, residuals_sd=NA)#
+#
+	model_f_plate<-model_f_row#
+	plot(log10(dat$dilution),dat[,1],t="p",pch=16,cex=2, col= sample_col[sample_type[1]],xlab="Relative Concentration",ylab="Signal", main= basename)#
+	for (i in 2:8)#
+		points(log10(dat$dilution),dat[,i],pch=16,cex=2,col=sample_col[sample_type[i]])#
+	s_min=min(dat[,1:8])	#
+	s_max=max(dat[,1:8])	#
+	abline(h=s_min,lty=2)#
+	abline(h=s_max,lty=2)#
+	abline(h=(s_min+s_max)/2,lty=2)#
+	log_d<-seq( log10(min(dat[,9])), log10(max(dat[,9])),length=100)#
+	d<-10^log_d#
+	for (i in 1:8)	{#
+		model_f_row$Lab=laboratory#
+		model_f_row$Date=platedate#
+		model_f_row$Plate=plateid#
+		model_f_row$Id=colnames(dat)[i]	#
+		data<-dat[,c(9,i)]#
+		colnames(data)<-c("d","s")#
+		ik3<-dat$dilution[ which(dat[,i]<=(s_min+s_max)/2)[1] ]#
+		print(ik3)#
+		if (max(dat[,i])<(s_min+s_max)/2) {#
+			f_fit<-nls(s ~ f(d,k1,s_max-s_min,k3),data, start=list(k1=s_min, k3=ik3) ,control=nlc)#
+			model_f_row$k1=coefficients(f_fit)[1]#
+			model_f_row$k2=s_max-s_min#
+			model_f_row$k3=coefficients(f_fit)[2]#
+			model_f_row$residuals_sd=summary(f_fit)$sigma#
+		} else {#
+			f_fit<-nls(s ~ f(d,k1,k2,k3),data, start=list(k1=s_min, k2=s_max-s_min,k3=ik3) ,control=nlc)#
+			model_f_row$k1=coefficients(f_fit)[1]#
+			model_f_row$k2=coefficients(f_fit)[2]#
+			model_f_row$k3=coefficients(f_fit)[3]#
+			model_f_row$residuals_sd=summary(f_fit)$sigma#
+		}#
+		lines(log_d,predict(f_fit,list(d=d)),col=sample_col[sample_type[i]])#
+	#	plot(log10(dat$dilution),data$s,pch=16,cex=2,col=sample_col[sample_type[i]])#
+	#	lines(log_d,af(log_d,k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2),col="red")#
+	#	lines(log_d,af(log_d,k1=1.779, k2=s_max-s_min,k3= -1.277,k4= 2.476),col="red")#
+		if (is.na(model_f_plate$Id[1])) {#
+			model_f_plate<-model_f_row#
+		} else {#
+			model_f_plate<-rbind(model_f_plate,model_f_row)#
+		}#
+	}#
+	index_R<-which(sample_type=="R")#
+	refmean<-mean(model_f_plate $k3[index_R])	#
+	model_f_plate $ref_k3=refmean#
+	model_f_plate $standard_k3= model_f_plate $k3/refmean#
+	model_f_plate $titer=1/	model_f_plate $standard_k3#
+		if (is.na(model_f$Id[1])) {#
+			model_f<-model_f_plate#
+		} else {#
+			model_f<-rbind(model_f, model_f_plate)#
+		}#
+}
+indexInfected<-grep("I",model_f$Id)#
+#
+plot(log10( model_f$titer[indexInfected]),pch=16)#
+#
+plot( ecdf(log10( model_f$titer[indexInfected])) )
+model_af<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,k4=NA,ref_k3=NA, standard_k3=NA,residuals_sd=NA)#
+par(ask=T)#
+for(filename in fnames) {#
+	sample_col=c("darkgray","black","gray")#
+	print(filename)#
+#
+	basename=paste(sub('\\.csv$', '', filename) )#
+#
+	platedate<-strsplit(basename," ")[[1]][1]#
+	plateid<-strsplit(basename," ")[[1]][2]#
+#
+	dat<-read.csv(filename)#
+	sample_type<-as.factor(substring(colnames(dat)[1:8], 1, 1))#
+	model_af_row<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,k4=NA,ref_k3=NA,standard_k3=NA,titer=NA, residuals_sd=NA)#
+#
+	model_af_plate<-model_atan_row#
+	plot(log10(dat$dilution),dat[,1],t="p",pch=16,cex=2, col= sample_col[sample_type[1]],xlab="Relative Concentration",ylab="Signal", main= basename)#
+	for (i in 2:8) {#
+		points(log10(dat$dilution),dat[,i],pch=16,cex=2,col=sample_col[sample_type[i]])#
+		}#
+	s_min=min(dat[,1:8])	#
+	s_max=max(dat[,1:8])	#
+	abline(h=s_min,lty=2)#
+	abline(h=s_max,lty=2)#
+	abline(h=(s_min+s_max)/2,lty=2)#
+	log_d<-seq( log10(min(dat[,9])), log10(max(dat[,9])),length=100)#
+	d<-10^log_d#
+	for (i in 1:8)	{#
+		model_af_row$Lab=laboratory#
+		model_af_row$Date=platedate#
+		model_af_row$Plate=plateid#
+		model_af_row$Id=colnames(dat)[i]	#
+		data<-dat[,c(9,i)]#
+		colnames(data)<-c("d","s")#
+		ik3<-data$d[ which(data$s<=(s_min+s_max)/2)[1] ]#
+		print(ik3)#
+		if (max(dat[,i])<(s_min+s_max)/2) {#
+			af_fit<-nls(s ~ af(log10(d),k1,s_max-s_min,k3,k4),  data, start=list(k1= s_min,k3= log10(ik3),k4=2),control=nlc)#
+			model_af_row$k1=coefficients(af_fit)[1]#
+			model_af_row$k2=s_max-s_min#
+			model_af_row$k3=coefficients(af_fit)[2]#
+			model_af_row$k4=coefficients(af_fit)[3]#
+			model_af_row$residuals_sd=summary(af_fit)$sigma#
+		} else {#
+			af_fit<-nls(s ~ af(log10(d),k1,k2,k3,k4),data, start=list(k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2) ,control=nlc)#
+			model_af_row$k1=coefficients(af_fit)[1]#
+			model_af_row$k2=coefficients(af_fit)[2]#
+			model_af_row$k3=coefficients(af_fit)[3]#
+			model_af_row$k4=coefficients(af_fit)[4]#
+			model_af_row$residuals_sd=summary(af_fit)$sigma#
+		}#
+		lines(log_d,predict(af_fit,list(d=d)),col=sample_col[sample_type[i]])#
+	#	plot(log10(dat$dilution),data$s,pch=16,cex=2,col=sample_col[sample_type[i]])#
+	#	lines(log_d,af(log_d,k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2),col="red")#
+	#	lines(log_d,af(log_d,k1=1.779, k2=s_max-s_min,k3= -1.277,k4= 2.476),col="red")#
+		if (is.na(model_af_plate$Id[1])) {#
+			model_af_plate<-model_af_row#
+		} else {#
+			model_af_plate<-rbind(model_af_plate,model_af_row)#
+		}#
+	}#
+	index_R<-which(sample_type=="R")#
+	refmean<-mean(model_af_plate $k3[index_R])	#
+	model_af_plate $ref_k3=refmean#
+	model_af_plate $standard_k3= model_af_plate $k3-refmean#
+	model_af_plate $titer=1/	10^model_af_plate $standard_k3#
+		if (is.na(model_af$Id[1])) {#
+			model_af<-model_af_plate#
+		} else {#
+			model_af<-rbind(model_af, model_af_plate)#
+		}#
+}
+setwd("/Users/jorge/Desktop/ToolingUpForSystemsBiologyAndMedicineWorkshop2024/Werk/RawData/HowardNew")#
+controlsampleid<-sprintf("Control%03d",seq(1,1000))#
+infectedsampleid<-sprintf("Infected%03d",seq(1,3000))#
+controlsamplepointer=1#
+infectedsamplepointer=1#
+dates<-sort(sample(seq(as.Date('2024-04-01'), as.Date('2024-07-31'), by = "day"), 19))#
+#
+log_inf_k3_sd=2#
+log_inf_k3_ave_seq<-rep(-4, length=length(dates))#
+for (i in 1:length(dates)) {#
+	log_inf_k3_ave= log_inf_k3_ave_seq[i]#
+	perday<-sample(4:8,1)#
+	for (p in 1:perday) {#
+		filename<-paste(format(dates[i],"%a %b %d %Y")," (P",p,").csv",sep="")#
+		data<-make_plate_d12_heterogeneous(pd0=abs(rnorm(1,0.5,0.1)),pk1=abs(2.4*rnorm(1,1,0.2)),pk2=abs(10*rnorm(1,1,0.3)) )#
+		write.csv(data,filename, row.names = FALSE)#
+	}#
+}
+model_af<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,k4=NA,ref_k3=NA, standard_k3=NA,residuals_sd=NA)#
+par(ask=T)#
+for(filename in fnames) {#
+	sample_col=c("darkgray","black","gray")#
+	print(filename)#
+#
+	basename=paste(sub('\\.csv$', '', filename) )#
+#
+	platedate<-strsplit(basename," ")[[1]][1]#
+	plateid<-strsplit(basename," ")[[1]][2]#
+#
+	dat<-read.csv(filename)#
+	sample_type<-as.factor(substring(colnames(dat)[1:8], 1, 1))#
+	model_af_row<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,k4=NA,ref_k3=NA,standard_k3=NA,titer=NA, residuals_sd=NA)#
+#
+	model_af_plate<-model_atan_row#
+	plot(log10(dat$dilution),dat[,1],t="p",pch=16,cex=2, col= sample_col[sample_type[1]],xlab="Relative Concentration",ylab="Signal", main= basename)#
+	for (i in 2:8) {#
+		points(log10(dat$dilution),dat[,i],pch=16,cex=2,col=sample_col[sample_type[i]])#
+		}#
+	s_min=min(dat[,1:8])	#
+	s_max=max(dat[,1:8])	#
+	abline(h=s_min,lty=2)#
+	abline(h=s_max,lty=2)#
+	abline(h=(s_min+s_max)/2,lty=2)#
+	log_d<-seq( log10(min(dat[,9])), log10(max(dat[,9])),length=100)#
+	d<-10^log_d#
+	for (i in 1:8)	{#
+		model_af_row$Lab=laboratory#
+		model_af_row$Date=platedate#
+		model_af_row$Plate=plateid#
+		model_af_row$Id=colnames(dat)[i]	#
+		data<-dat[,c(9,i)]#
+		colnames(data)<-c("d","s")#
+		ik3<-data$d[ which(data$s<=(s_min+s_max)/2)[1] ]#
+		print(ik3)#
+		if (max(dat[,i])<(s_min+s_max)/2) {#
+			af_fit<-nls(s ~ af(log10(d),k1,s_max-s_min,k3,k4),  data, start=list(k1= s_min,k3= log10(ik3),k4=2),control=nlc)#
+			model_af_row$k1=coefficients(af_fit)[1]#
+			model_af_row$k2=s_max-s_min#
+			model_af_row$k3=coefficients(af_fit)[2]#
+			model_af_row$k4=coefficients(af_fit)[3]#
+			model_af_row$residuals_sd=summary(af_fit)$sigma#
+		} else {#
+			af_fit<-nls(s ~ af(log10(d),k1,k2,k3,k4),data, start=list(k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2) ,control=nlc)#
+			model_af_row$k1=coefficients(af_fit)[1]#
+			model_af_row$k2=coefficients(af_fit)[2]#
+			model_af_row$k3=coefficients(af_fit)[3]#
+			model_af_row$k4=coefficients(af_fit)[4]#
+			model_af_row$residuals_sd=summary(af_fit)$sigma#
+		}#
+		lines(log_d,predict(af_fit,list(d=d)),col=sample_col[sample_type[i]])#
+	#	plot(log10(dat$dilution),data$s,pch=16,cex=2,col=sample_col[sample_type[i]])#
+	#	lines(log_d,af(log_d,k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2),col="red")#
+	#	lines(log_d,af(log_d,k1=1.779, k2=s_max-s_min,k3= -1.277,k4= 2.476),col="red")#
+		if (is.na(model_af_plate$Id[1])) {#
+			model_af_plate<-model_af_row#
+		} else {#
+			model_af_plate<-rbind(model_af_plate,model_af_row)#
+		}#
+	}#
+	index_R<-which(sample_type=="R")#
+	refmean<-mean(model_af_plate $k3[index_R])	#
+	model_af_plate $ref_k3=refmean#
+	model_af_plate $standard_k3= model_af_plate $k3-refmean#
+	model_af_plate $titer=1/	10^model_af_plate $standard_k3#
+		if (is.na(model_af$Id[1])) {#
+			model_af<-model_af_plate#
+		} else {#
+			model_af<-rbind(model_af, model_af_plate)#
+		}#
+}
+f<- function(x,k1,k2,k3) {#
+	return(k1+k2*x/(k3+x))#
+}#
+#
+af<-function(x,k1,k2,k3,k4) {#
+	return(  k1+k2*((atan((x-(k3))*k4)+ (pi/2))/pi ))#
+}#
+#
+nlc <- nls.control(maxiter = 150,minFactor=10^-6)#
+#
+setwd("/Users/jorge/Desktop/ToolingUpForSystemsBiologyAndMedicineWorkshop2024/Werk/RawData/HowardNew")#
+fnames<-dir()#
+splitpath<-strsplit(getwd(),"/")#
+splitpath[[1]]#
+laboratory<-tail(splitpath[[1]],1)#
+model_f<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,ref_k3=NA, standard_k3=NA,residuals_sd=NA)#
+par(ask=T)#
+for(filename in fnames) {#
+	sample_col=c("darkgray","black","gray")#
+	print(filename)#
+#
+	basename=paste(sub('\\.csv$', '', filename) )#
+#
+	platedate<-strsplit(basename," ")[[1]][1]#
+	plateid<-strsplit(basename," ")[[1]][2]#
+#
+	dat<-read.csv(filename)#
+	sample_type<-as.factor(substring(colnames(dat)[1:8], 1, 1))#
+	model_f_row<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,ref_k3=NA,standard_k3=NA,titer=NA, residuals_sd=NA)#
+#
+	model_f_plate<-model_f_row#
+	plot(log10(dat$dilution),dat[,1],t="p",pch=16,cex=2, col= sample_col[sample_type[1]],xlab="Relative Concentration",ylab="Signal", main= basename)#
+	for (i in 2:8)#
+		points(log10(dat$dilution),dat[,i],pch=16,cex=2,col=sample_col[sample_type[i]])#
+	s_min=min(dat[,1:8])	#
+	s_max=max(dat[,1:8])	#
+	abline(h=s_min,lty=2)#
+	abline(h=s_max,lty=2)#
+	abline(h=(s_min+s_max)/2,lty=2)#
+	log_d<-seq( log10(min(dat[,9])), log10(max(dat[,9])),length=100)#
+	d<-10^log_d#
+	for (i in 1:8)	{#
+		model_f_row$Lab=laboratory#
+		model_f_row$Date=platedate#
+		model_f_row$Plate=plateid#
+		model_f_row$Id=colnames(dat)[i]	#
+		data<-dat[,c(9,i)]#
+		colnames(data)<-c("d","s")#
+		ik3<-dat$dilution[ which(dat[,i]<=(s_min+s_max)/2)[1] ]#
+		print(ik3)#
+		if (max(dat[,i])<(s_min+s_max)/2) {#
+			f_fit<-nls(s ~ f(d,k1,s_max-s_min,k3),data, start=list(k1=s_min, k3=ik3) ,control=nlc)#
+			model_f_row$k1=coefficients(f_fit)[1]#
+			model_f_row$k2=s_max-s_min#
+			model_f_row$k3=coefficients(f_fit)[2]#
+			model_f_row$residuals_sd=summary(f_fit)$sigma#
+		} else {#
+			f_fit<-nls(s ~ f(d,k1,k2,k3),data, start=list(k1=s_min, k2=s_max-s_min,k3=ik3) ,control=nlc)#
+			model_f_row$k1=coefficients(f_fit)[1]#
+			model_f_row$k2=coefficients(f_fit)[2]#
+			model_f_row$k3=coefficients(f_fit)[3]#
+			model_f_row$residuals_sd=summary(f_fit)$sigma#
+		}#
+		lines(log_d,predict(f_fit,list(d=d)),col=sample_col[sample_type[i]])#
+	#	plot(log10(dat$dilution),data$s,pch=16,cex=2,col=sample_col[sample_type[i]])#
+	#	lines(log_d,af(log_d,k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2),col="red")#
+	#	lines(log_d,af(log_d,k1=1.779, k2=s_max-s_min,k3= -1.277,k4= 2.476),col="red")#
+		if (is.na(model_f_plate$Id[1])) {#
+			model_f_plate<-model_f_row#
+		} else {#
+			model_f_plate<-rbind(model_f_plate,model_f_row)#
+		}#
+	}#
+	index_R<-which(sample_type=="R")#
+	refmean<-mean(model_f_plate $k3[index_R])	#
+	model_f_plate $ref_k3=refmean#
+	model_f_plate $standard_k3= model_f_plate $k3/refmean#
+	model_f_plate $titer=1/	model_f_plate $standard_k3#
+		if (is.na(model_f$Id[1])) {#
+			model_f<-model_f_plate#
+		} else {#
+			model_f<-rbind(model_f, model_f_plate)#
+		}#
+}
+indexInfected<-grep("I",model_f$Id)#
+#
+plot(log10( model_f$titer[indexInfected]),pch=16)#
+#
+plot( ecdf(log10( model_f$titer[indexInfected])) )
+model_af<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,k4=NA,ref_k3=NA, standard_k3=NA,residuals_sd=NA)#
+par(ask=T)#
+for(filename in fnames) {#
+	sample_col=c("darkgray","black","gray")#
+	print(filename)#
+#
+	basename=paste(sub('\\.csv$', '', filename) )#
+#
+	platedate<-strsplit(basename," ")[[1]][1]#
+	plateid<-strsplit(basename," ")[[1]][2]#
+#
+	dat<-read.csv(filename)#
+	sample_type<-as.factor(substring(colnames(dat)[1:8], 1, 1))#
+	model_af_row<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,k4=NA,ref_k3=NA,standard_k3=NA,titer=NA, residuals_sd=NA)#
+#
+	model_af_plate<-model_atan_row#
+	plot(log10(dat$dilution),dat[,1],t="p",pch=16,cex=2, col= sample_col[sample_type[1]],xlab="Relative Concentration",ylab="Signal", main= basename)#
+	for (i in 2:8) {#
+		points(log10(dat$dilution),dat[,i],pch=16,cex=2,col=sample_col[sample_type[i]])#
+		}#
+	s_min=min(dat[,1:8])	#
+	s_max=max(dat[,1:8])	#
+	abline(h=s_min,lty=2)#
+	abline(h=s_max,lty=2)#
+	abline(h=(s_min+s_max)/2,lty=2)#
+	log_d<-seq( log10(min(dat[,9])), log10(max(dat[,9])),length=100)#
+	d<-10^log_d#
+	for (i in 1:8)	{#
+		model_af_row$Lab=laboratory#
+		model_af_row$Date=platedate#
+		model_af_row$Plate=plateid#
+		model_af_row$Id=colnames(dat)[i]	#
+		data<-dat[,c(9,i)]#
+		colnames(data)<-c("d","s")#
+		ik3<-data$d[ which(data$s<=(s_min+s_max)/2)[1] ]#
+		print(ik3)#
+		if (max(dat[,i])<(s_min+s_max)/2) {#
+			af_fit<-nls(s ~ af(log10(d),k1,s_max-s_min,k3,k4),  data, start=list(k1= s_min,k3= log10(ik3),k4=2),control=nlc)#
+			model_af_row$k1=coefficients(af_fit)[1]#
+			model_af_row$k2=s_max-s_min#
+			model_af_row$k3=coefficients(af_fit)[2]#
+			model_af_row$k4=coefficients(af_fit)[3]#
+			model_af_row$residuals_sd=summary(af_fit)$sigma#
+		} else {#
+			af_fit<-nls(s ~ af(log10(d),k1,k2,k3,k4),data, start=list(k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2) ,control=nlc)#
+			model_af_row$k1=coefficients(af_fit)[1]#
+			model_af_row$k2=coefficients(af_fit)[2]#
+			model_af_row$k3=coefficients(af_fit)[3]#
+			model_af_row$k4=coefficients(af_fit)[4]#
+			model_af_row$residuals_sd=summary(af_fit)$sigma#
+		}#
+		lines(log_d,predict(af_fit,list(d=d)),col=sample_col[sample_type[i]])#
+	#	plot(log10(dat$dilution),data$s,pch=16,cex=2,col=sample_col[sample_type[i]])#
+	#	lines(log_d,af(log_d,k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2),col="red")#
+	#	lines(log_d,af(log_d,k1=1.779, k2=s_max-s_min,k3= -1.277,k4= 2.476),col="red")#
+		if (is.na(model_af_plate$Id[1])) {#
+			model_af_plate<-model_af_row#
+		} else {#
+			model_af_plate<-rbind(model_af_plate,model_af_row)#
+		}#
+	}#
+	index_R<-which(sample_type=="R")#
+	refmean<-mean(model_af_plate $k3[index_R])	#
+	model_af_plate $ref_k3=refmean#
+	model_af_plate $standard_k3= model_af_plate $k3-refmean#
+	model_af_plate $titer=1/	10^model_af_plate $standard_k3#
+		if (is.na(model_af$Id[1])) {#
+			model_af<-model_af_plate#
+		} else {#
+			model_af<-rbind(model_af, model_af_plate)#
+		}#
+}
+par(ask=FALSE)#
+plot(log10( model_af$titer[indexInfected]),pch=16)
+plot( ecdf(log10( model_af$titer[indexInfected])) )
+plot(log10( model_f$titer[indexInfected]),log10( model_af$titer[indexInfected]),pch=16,xlab="log10 titer, Michaelis-Menten", ylab="log10 titer, rescaled atan")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)
+plot(log10( model_f$titer[indexInfected]),log10( model_af$titer[indexInfected]),pch=16,xlab="log10 titer, Langmuir", ylab="log10 titer, rescaled atan")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)
+plot(model_f$residuals_sd,model_af$residuals_sd,cex=0.5,pch=16,xlab="Residuals Sigma, Langmuir", ylab="Residuals Sigma, rescaled atan")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)
+setwd("/Users/jorge/Desktop/ToolingUpForSystemsBiologyAndMedicineWorkshop2024/Werk/RawData/Howard")#
+fnames<-dir()#
+splitpath<-strsplit(getwd(),"/")#
+splitpath[[1]]#
+laboratory<-tail(splitpath[[1]],1)
+par(ask=T)#
+for(filename in fnames) {#
+	sample_col=c("darkgray","black","gray")#
+	print(filename)#
+#
+	basename=paste(sub('\\.csv$', '', filename) )#
+#
+	platedate<-strsplit(basename," ")[[1]][1]#
+	plateid<-strsplit(basename," ")[[1]][2]#
+#
+	dat<-read.csv(filename)#
+	sample_type<-as.factor(substring(colnames(dat)[1:8], 1, 1))#
+	model_f_row<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,ref_k3=NA,standard_k3=NA,titer=NA, residuals_sd=NA)#
+#
+	model_f_plate<-model_f_row#
+	plot(log10(dat$dilution),dat[,1],t="p",pch=16,cex=2, col= sample_col[sample_type[1]],xlab="Relative Concentration",ylab="Signal", main= basename)#
+	for (i in 2:8)#
+		points(log10(dat$dilution),dat[,i],pch=16,cex=2,col=sample_col[sample_type[i]])#
+	s_min=min(dat[,1:8])	#
+	s_max=max(dat[,1:8])	#
+	abline(h=s_min,lty=2)#
+	abline(h=s_max,lty=2)#
+	abline(h=(s_min+s_max)/2,lty=2)#
+	log_d<-seq( log10(min(dat[,9])), log10(max(dat[,9])),length=100)#
+	d<-10^log_d#
+	for (i in 1:8)	{#
+		model_f_row$Lab=laboratory#
+		model_f_row$Date=platedate#
+		model_f_row$Plate=plateid#
+		model_f_row$Id=colnames(dat)[i]	#
+		data<-dat[,c(9,i)]#
+		colnames(data)<-c("d","s")#
+		ik3<-dat$dilution[ which(dat[,i]<=(s_min+s_max)/2)[1] ]#
+		print(ik3)#
+		if (max(dat[,i])<(s_min+s_max)/2) {#
+			f_fit<-nls(s ~ f(d,k1,s_max-s_min,k3),data, start=list(k1=s_min, k3=ik3) ,control=nlc)#
+			model_f_row$k1=coefficients(f_fit)[1]#
+			model_f_row$k2=s_max-s_min#
+			model_f_row$k3=coefficients(f_fit)[2]#
+			model_f_row$residuals_sd=summary(f_fit)$sigma#
+		} else {#
+			f_fit<-nls(s ~ f(d,k1,k2,k3),data, start=list(k1=s_min, k2=s_max-s_min,k3=ik3) ,control=nlc)#
+			model_f_row$k1=coefficients(f_fit)[1]#
+			model_f_row$k2=coefficients(f_fit)[2]#
+			model_f_row$k3=coefficients(f_fit)[3]#
+			model_f_row$residuals_sd=summary(f_fit)$sigma#
+		}#
+		lines(log_d,predict(f_fit,list(d=d)),col=sample_col[sample_type[i]])#
+	#	plot(log10(dat$dilution),data$s,pch=16,cex=2,col=sample_col[sample_type[i]])#
+	#	lines(log_d,af(log_d,k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2),col="red")#
+	#	lines(log_d,af(log_d,k1=1.779, k2=s_max-s_min,k3= -1.277,k4= 2.476),col="red")#
+		if (is.na(model_f_plate$Id[1])) {#
+			model_f_plate<-model_f_row#
+		} else {#
+			model_f_plate<-rbind(model_f_plate,model_f_row)#
+		}#
+	}#
+	index_R<-which(sample_type=="R")#
+	refmean<-mean(model_f_plate $k3[index_R])	#
+	model_f_plate $ref_k3=refmean#
+	model_f_plate $standard_k3= model_f_plate $k3/refmean#
+	model_f_plate $titer=1/	model_f_plate $standard_k3#
+		if (is.na(model_f$Id[1])) {#
+			model_f<-model_f_plate#
+		} else {#
+			model_f<-rbind(model_f, model_f_plate)#
+		}#
+}
+indexInfected<-grep("I",model_f$Id)#
+#
+plot(log10( model_f$titer[indexInfected]),pch=16)
+plot( ecdf(log10( model_f$titer[indexInfected])) )
+par(ask=T)#
+for(filename in fnames) {#
+	sample_col=c("darkgray","black","gray")#
+	print(filename)#
+#
+	basename=paste(sub('\\.csv$', '', filename) )#
+#
+	platedate<-strsplit(basename," ")[[1]][1]#
+	plateid<-strsplit(basename," ")[[1]][2]#
+#
+	dat<-read.csv(filename)#
+	sample_type<-as.factor(substring(colnames(dat)[1:8], 1, 1))#
+	model_af_row<-data.frame(Lab=NA,Date=NA,Plate=NA,Id=NA,k1=NA,k2=NA,k3=NA,k4=NA,ref_k3=NA,standard_k3=NA,titer=NA, residuals_sd=NA)#
+#
+	model_af_plate<-model_atan_row#
+	plot(log10(dat$dilution),dat[,1],t="p",pch=16,cex=2, col= sample_col[sample_type[1]],xlab="Relative Concentration",ylab="Signal", main= basename)#
+	for (i in 2:8) {#
+		points(log10(dat$dilution),dat[,i],pch=16,cex=2,col=sample_col[sample_type[i]])#
+		}#
+	s_min=min(dat[,1:8])	#
+	s_max=max(dat[,1:8])	#
+	abline(h=s_min,lty=2)#
+	abline(h=s_max,lty=2)#
+	abline(h=(s_min+s_max)/2,lty=2)#
+	log_d<-seq( log10(min(dat[,9])), log10(max(dat[,9])),length=100)#
+	d<-10^log_d#
+	for (i in 1:8)	{#
+		model_af_row$Lab=laboratory#
+		model_af_row$Date=platedate#
+		model_af_row$Plate=plateid#
+		model_af_row$Id=colnames(dat)[i]	#
+		data<-dat[,c(9,i)]#
+		colnames(data)<-c("d","s")#
+		ik3<-data$d[ which(data$s<=(s_min+s_max)/2)[1] ]#
+		print(ik3)#
+		if (max(dat[,i])<(s_min+s_max)/2) {#
+			af_fit<-nls(s ~ af(log10(d),k1,s_max-s_min,k3,k4),  data, start=list(k1= s_min,k3= log10(ik3),k4=2),control=nlc)#
+			model_af_row$k1=coefficients(af_fit)[1]#
+			model_af_row$k2=s_max-s_min#
+			model_af_row$k3=coefficients(af_fit)[2]#
+			model_af_row$k4=coefficients(af_fit)[3]#
+			model_af_row$residuals_sd=summary(af_fit)$sigma#
+		} else {#
+			af_fit<-nls(s ~ af(log10(d),k1,k2,k3,k4),data, start=list(k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2) ,control=nlc)#
+			model_af_row$k1=coefficients(af_fit)[1]#
+			model_af_row$k2=coefficients(af_fit)[2]#
+			model_af_row$k3=coefficients(af_fit)[3]#
+			model_af_row$k4=coefficients(af_fit)[4]#
+			model_af_row$residuals_sd=summary(af_fit)$sigma#
+		}#
+		lines(log_d,predict(af_fit,list(d=d)),col=sample_col[sample_type[i]])#
+	#	plot(log10(dat$dilution),data$s,pch=16,cex=2,col=sample_col[sample_type[i]])#
+	#	lines(log_d,af(log_d,k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2),col="red")#
+	#	lines(log_d,af(log_d,k1=1.779, k2=s_max-s_min,k3= -1.277,k4= 2.476),col="red")#
+		if (is.na(model_af_plate$Id[1])) {#
+			model_af_plate<-model_af_row#
+		} else {#
+			model_af_plate<-rbind(model_af_plate,model_af_row)#
+		}#
+	}#
+	index_R<-which(sample_type=="R")#
+	refmean<-mean(model_af_plate $k3[index_R])	#
+	model_af_plate $ref_k3=refmean#
+	model_af_plate $standard_k3= model_af_plate $k3-refmean#
+	model_af_plate $titer=1/	10^model_af_plate $standard_k3#
+		if (is.na(model_af$Id[1])) {#
+			model_af<-model_af_plate#
+		} else {#
+			model_af<-rbind(model_af, model_af_plate)#
+		}#
+}
+plot(log10( model_af$titer[indexInfected]),pch=16)
+par(ask=FALSE)
+plot(log10( model_af$titer[indexInfected]),pch=16)
+plot( ecdf(log10( model_af$titer[indexInfected])) )
+plot(log10( model_f$titer[indexInfected]),log10( model_af$titer[indexInfected]),pch=16,xlab="log10 titer, Langmuir", ylab="log10 titer, rescaled atan")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)#
+plot(model_f$residuals_sd,model_af$residuals_sd,cex=0.5,pch=16,xlab="Residuals Sigma, Langmuir", ylab="Residuals Sigma, rescaled atan")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)
+plot(log10( model_af$titer[indexInfected]),model_af$k4),pch=16,xlab="k4, rescaled atan", ylab="log10 titer, rescaled atan")
+plot(log10( model_af$titer[indexInfected]),model_af$k4,pch=16,xlab="k4, rescaled atan", ylab="log10 titer, rescaled atan")
+plot(log10( model_af$titer[indexInfected]),model_af$k4[indexInfected],pch=16,xlab="k4, rescaled atan", ylab="log10 titer, rescaled atan")
+plot(model_af$k4[indexInfected],log10( model_af$titer[indexInfected]),pch=16,xlab="k4, rescaled atan", ylab="log10 titer, rescaled atan")
+plot(model_af$k4[indexInfected],log10( model_af$titer[indexInfected]),pch=16,xlab="k4, rescaled atan", ylab="log10 titer, rescaled atan",xaxis=c(0,20))
+plot(model_af$k4[indexInfected],log10( model_af$titer[indexInfected]),pch=16,xlab="k4, rescaled atan", ylab="log10 titer, rescaled atan",xaxes=c(0,20))
+plot(model_af$k4[indexInfected],log10( model_af$titer[indexInfected]),pch=16,xlab="k4, rescaled atan", ylab="log10 titer, rescaled atan",xlim=c(0,20))
+plot(model_af$k4[indexInfected],log10( model_af$titer[indexInfected]),pch=16,xlab="k4, rescaled atan", ylab="log10 titer, rescaled atan",xlim=c(0,20),pch=16,col=rgb(0,0,0,0.3))
+plot(model_af$k4[indexInfected],log10( model_af$titer[indexInfected]),pch=16,xlab="k4, rescaled atan", ylab="log10 titer, rescaled atan",xlim=c(0,20),col=rgb(0,0,0,0.3))
+plot(log10(model_af$k4[indexInfected]),log10( model_af$titer[indexInfected]),pch=16,xlab="log10 k4, rescaled atan", ylab="log10 titer, rescaled atan",col=rgb(0,0,0,0.3))
+plot(log10(model_af$k4[indexInfected]),pch=16,xlab="sample order", ylab="log10 k4, rescaled atan",col=rgb(0,0,0,0.3))
+model_af$Date[1:100]
+plot(log10( model_f$titer[indexInfected]),model_f$Residuals_sd,pch=16)
+model_f$Residuals_sd
+plot(log10( model_f$titer[indexInfected]),model_f$sigma,pch=16)
+plot(log10( model_f$titer[indexInfected]),model_f$sigma,pch=16)
+model_f$residuals_sd
+plot(log10( model_f$titer[indexInfected]),model_f$residuals_sd,pch=16)
+plot(log10( model_f$titer[indexInfected]),model_f$residuals[indexInfected]_sd,pch=16)
+plot(log10( model_f$titer[indexInfected]),model_f$residuals_sd[indexInfected],pch=16)
+plot(model_f$residuals_sd[indexInfected],pch=16)
+points((model_af$residuals_sd[indexInfected],pch=16,col="blue"))
+points(model_af$residuals_sd[indexInfected],pch=16,col="blue")
+plot(model_f$residuals_sd[indexInfected],pch=16,col="brown")
+points(model_af$residuals_sd[indexInfected],pch=16,col="blue")
+plot(model_f$residuals_sd[indexInfected],pch=16,col="brown",xlab="Residuals SD")
+points(model_af$residuals_sd[indexInfected],pch=16,col="blue")
+plot(ecdf(model_f$residuals_sd[indexInfected],col="brown",xlab="Residuals SD")
+)
+plot(ecdf(model_f$residuals_sd[indexInfected],col="brown",xlab="Residuals SD"))
+plot(ecdf(model_f$residuals_sd[indexInfected]),col="brown",xlab="Residuals SD")
+plot(ecdf(model_f$residuals_sd[indexInfected]),col="brown",xlab="Residuals SD",ylab="PDF ")
+plot(ecdf(model_f$residuals_sd[indexInfected]),col="brown",xlab="Residuals SD",ylab="CDF ")
+plot(ecdf(model_f$residuals_sd[indexInfected]),col="brown",xlab="Residuals SD",ylab="Cumulative frequency ")
+lines(ecdf(model_af$residuals_sd[indexInfected]),col="blue")
+plot(log10( model_f$titer[indexInfected]),log10( model_af$titer[indexInfected]),pch=16,xlab="log10 titer, Langmuir", ylab="log10 titer, rescaled atan")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)
+plot(log10( model_f$titer[indexInfected]),log10( model_af$titer[indexInfected]),pch=16,xlab="log10 titer, Langmuir", ylab="log10 titer, rescaled atan",col=rgb(0,0,0,0.3))
+abline(a=0,b=1,lty=2,col="gray",lwd=2)
+par(mfrow=c(3,1))#
+plot(log10( model_f$titer[indexInfected]),log10( model_af$titer[indexInfected]),pch=16,xlab="log10 titer, Langmuir", ylab="log10 titer, rescaled atan",col=rgb(0,0,0,0.3))#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)#
+#
+plot(ecdf(model_f$residuals_sd[indexInfected]),col="brown",xlab="Residuals SD",ylab="Cumulative frequency")#
+lines(ecdf(model_af$residuals_sd[indexInfected]),col="blue")#
+#
+plot(model_f$residuals_sd,model_af$residuals_sd,cex=0.5,pch=16,xlab="Residuals Sigma, Langmuir", ylab="Residuals Sigma, rescaled atan")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)
+par(mfrow=c(3,1))#
+plot(log10( model_f$titer[indexInfected]),log10( model_af$titer[indexInfected]),pch=16,xlab="log10 titer, Langmuir", ylab="log10 titer, rescaled atan",col=rgb(0,0,0,0.3))#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)#
+#
+plot(ecdf(model_f$residuals_sd[indexInfected]),col="brown",xlab="Residuals SD",ylab="Cumulative frequency")#
+lines(ecdf(model_af$residuals_sd[indexInfected]),col="blue")#
+#
+plot(model_f$residuals_sd,model_af$residuals_sd,cex=0.5,pch=16,xlab="Residuals SD, Langmuir", ylab="Residuals SD, rescaled atan")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)
+par(mfrow=c(3,1))#
+plot(log10( model_f$titer[indexInfected]),log10( model_af$titer[indexInfected]),pch=16,xlab="log10 titer, Langmuir", ylab="log10 titer, rescaled atan",col=rgb(0,0,0,0.3),main="Howard data sets")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)#
+#
+plot(ecdf(model_f$residuals_sd[indexInfected]),col="brown",xlab="Residuals SD",ylab="Cumulative frequency")#
+lines(ecdf(model_af$residuals_sd[indexInfected]),col="blue")#
+#
+plot(model_f$residuals_sd,model_af$residuals_sd,cex=0.5,pch=16,xlab="Residuals SD, Langmuir", ylab="Residuals SD, rescaled atan")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)
+plot(log10( model_f$titer[indexInfected]),log10( model_af$titer[indexInfected]),pch=16,xlab="log10 titer, Langmuir", ylab="log10 titer, rescaled atan",col=rgb(0,0,0,0.3),main="Howard data sets")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)#
+#
+plot(ecdf(model_f$residuals_sd[indexInfected]),col="brown",xlab="Residuals SD",ylab="Cumulative frequency",main="")#
+lines(ecdf(model_af$residuals_sd[indexInfected]),col="blue")#
+#
+plot(model_f$residuals_sd,model_af$residuals_sd,cex=0.5,pch=16,xlab="Residuals SD, Langmuir", ylab="Residuals SD, rescaled atan")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)
+text(0.5,ecdf(model_f$residuals_sd[indexInfected])(0.5),"Langmuir")
+par(mfrow=c(3,1))#
+plot(log10( model_f$titer[indexInfected]),log10( model_af$titer[indexInfected]),pch=16,xlab="log10 titer, Langmuir", ylab="log10 titer, rescaled atan",col=rgb(0,0,0,0.3),main="Howard data sets")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)#
+#
+plot(model_f$residuals_sd,model_af$residuals_sd,cex=0.5,pch=16,xlab="Residuals SD, Langmuir", ylab="Residuals SD, rescaled atan")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)#
+#
+plot(ecdf(model_f$residuals_sd[indexInfected]),col="brown",xlab="Residuals SD",ylab="Cumulative frequency",main="")#
+lines(ecdf(model_af$residuals_sd[indexInfected]),col="blue")#
+#
+text(0.5,ecdf(model_f$residuals_sd[indexInfected])(0.5),"Langmuir",col="brown")#
+text(0.5,ecdf(model_af$residuals_sd[indexInfected])(0.5),"Atan",col="blue")
+par(mfrow=c(3,1))#
+plot(log10( model_f$titer[indexInfected]),log10( model_af$titer[indexInfected]),pch=16,xlab="log10 titer, Langmuir", ylab="log10 titer, rescaled atan",col=rgb(0,0,0,0.3),main="Howard data sets")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)#
+#
+plot(model_f$residuals_sd,model_af$residuals_sd,cex=0.5,pch=16,xlab="Residuals SD, Langmuir", ylab="Residuals SD, rescaled atan")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)#
+#
+plot(ecdf(model_f$residuals_sd[indexInfected]),col="brown",xlab="Residuals SD",ylab="Cumulative frequency",main="")#
+lines(ecdf(model_af$residuals_sd[indexInfected]),col="blue")#
+#
+text(0.5,ecdf(model_f$residuals_sd[indexInfected])(0.5),"Langmuir",col="brown")#
+text(0.5,ecdf(model_af$residuals_sd[indexInfected])(0.5),"Rescaled atan",col="blue")
+par(mfrow=c(3,1))#
+plot(log10( model_f$titer[indexInfected]),log10( model_af$titer[indexInfected]),pch=16,xlab="log10 titer, Langmuir", ylab="log10 titer, Rescaled atan",col=rgb(0,0,0,0.3),main="Howard data sets")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)#
+#
+plot(model_f$residuals_sd,model_af$residuals_sd,cex=0.5,pch=16,xlab="Residuals SD, Langmuir", ylab="Residuals SD, rescaled atan")#
+abline(a=0,b=1,lty=2,col="gray",lwd=2)#
+#
+plot(ecdf(model_f$residuals_sd[indexInfected]),col="brown",xlab="Residuals SD",ylab="Cumulative frequency",main="")#
+lines(ecdf(model_af$residuals_sd[indexInfected]),col="blue")#
+#
+text(0.5,ecdf(model_f$residuals_sd[indexInfected])(0.5),"Langmuir",col="brown")#
+text(0.5,ecdf(model_af$residuals_sd[indexInfected])(0.5),"Rescaled atan",col="blue")
+plot(log10(dat$dilution),dat[,1],t="p",pch=16,cex=2, col= sample_col[sample_type[1]],xlab="Relative Concentration",ylab="Signal", main= basename)
+plot(log10(dat$dilution),dat[,1],t="p",pch=16,cex=2, col= sample_col[sample_type[1]],xlab="Relative Dilution",ylab="Signal", main= basename)
+plot(log10(dat$dilution),dat[,1],t="p",pch=16,cex=2, col= sample_col[sample_type[1]],xlab="Relative Dilution",ylab="Signal", main= basename)#
+	for (i in 2:8)#
+		points(log10(dat$dilution),dat[,i],pch=16,cex=2,col=sample_col[sample_type[i]])
+s_min=min(dat[,1:8])	#
+	s_max=max(dat[,1:8])	#
+	abline(h=s_min,lty=2)#
+	abline(h=s_max,lty=2)#
+	abline(h=(s_min+s_max)/2,lty=2)#
+	log_d<-seq( log10(min(dat[,9])), log10(max(dat[,9])),length=100)#
+	d<-10^log_d#
+	for (i in 1:8)	{#
+		model_f_row$Lab=laboratory#
+		model_f_row$Date=platedate#
+		model_f_row$Plate=plateid#
+		model_f_row$Id=colnames(dat)[i]	#
+		data<-dat[,c(9,i)]#
+		colnames(data)<-c("d","s")#
+		ik3<-dat$dilution[ which(dat[,i]<=(s_min+s_max)/2)[1] ]#
+		print(ik3)#
+		if (max(dat[,i])<(s_min+s_max)/2) {#
+			f_fit<-nls(s ~ f(d,k1,s_max-s_min,k3),data, start=list(k1=s_min, k3=ik3) ,control=nlc)#
+			model_f_row$k1=coefficients(f_fit)[1]#
+			model_f_row$k2=s_max-s_min#
+			model_f_row$k3=coefficients(f_fit)[2]#
+			model_f_row$residuals_sd=summary(f_fit)$sigma#
+		} else {#
+			f_fit<-nls(s ~ f(d,k1,k2,k3),data, start=list(k1=s_min, k2=s_max-s_min,k3=ik3) ,control=nlc)#
+			model_f_row$k1=coefficients(f_fit)[1]#
+			model_f_row$k2=coefficients(f_fit)[2]#
+			model_f_row$k3=coefficients(f_fit)[3]#
+			model_f_row$residuals_sd=summary(f_fit)$sigma#
+		}#
+		lines(log_d,predict(f_fit,list(d=d)),col=sample_col[sample_type[i]])
+if (is.na(model_f_plate$Id[1])) {#
+			model_f_plate<-model_f_row#
+		} else {#
+			model_f_plate<-rbind(model_f_plate,model_f_row)#
+		}#
+	}
+par(mfrow=c(1,1))
+log_d<-seq( log10(min(dat[,9])), log10(max(dat[,9])),length=100)#
+	d<-10^log_d#
+	for (i in 1:8)	{#
+		model_f_row$Lab=laboratory#
+		model_f_row$Date=platedate#
+		model_f_row$Plate=plateid#
+		model_f_row$Id=colnames(dat)[i]	#
+		data<-dat[,c(9,i)]#
+		colnames(data)<-c("d","s")#
+		ik3<-dat$dilution[ which(dat[,i]<=(s_min+s_max)/2)[1] ]#
+		print(ik3)#
+		if (max(dat[,i])<(s_min+s_max)/2) {#
+			f_fit<-nls(s ~ f(d,k1,s_max-s_min,k3),data, start=list(k1=s_min, k3=ik3) ,control=nlc)#
+			model_f_row$k1=coefficients(f_fit)[1]#
+			model_f_row$k2=s_max-s_min#
+			model_f_row$k3=coefficients(f_fit)[2]#
+			model_f_row$residuals_sd=summary(f_fit)$sigma#
+		} else {#
+			f_fit<-nls(s ~ f(d,k1,k2,k3),data, start=list(k1=s_min, k2=s_max-s_min,k3=ik3) ,control=nlc)#
+			model_f_row$k1=coefficients(f_fit)[1]#
+			model_f_row$k2=coefficients(f_fit)[2]#
+			model_f_row$k3=coefficients(f_fit)[3]#
+			model_f_row$residuals_sd=summary(f_fit)$sigma#
+		}#
+		lines(log_d,predict(f_fit,list(d=d)),col=sample_col[sample_type[i]])#
+	#	plot(log10(dat$dilution),data$s,pch=16,cex=2,col=sample_col[sample_type[i]])#
+	#	lines(log_d,af(log_d,k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2),col="red")#
+	#	lines(log_d,af(log_d,k1=1.779, k2=s_max-s_min,k3= -1.277,k4= 2.476),col="red")#
+		if (is.na(model_f_plate$Id[1])) {#
+			model_f_plate<-model_f_row#
+		} else {#
+			model_f_plate<-rbind(model_f_plate,model_f_row)#
+		}#
+	}
+par(mfrow=c(1,1))
+plot(log10(dat$dilution),dat[,1],t="p",pch=16,cex=2, col= sample_col[sample_type[1]],xlab="Relative Dilution",ylab="Signal", main= basename)#
+	for (i in 2:8)#
+		points(log10(dat$dilution),dat[,i],pch=16,cex=2,col=sample_col[sample_type[i]])#
+	s_min=min(dat[,1:8])	#
+	s_max=max(dat[,1:8])	#
+	abline(h=s_min,lty=2)#
+	abline(h=s_max,lty=2)#
+	abline(h=(s_min+s_max)/2,lty=2)#
+	log_d<-seq( log10(min(dat[,9])), log10(max(dat[,9])),length=100)#
+	d<-10^log_d#
+	for (i in 1:8)	{#
+		model_f_row$Lab=laboratory#
+		model_f_row$Date=platedate#
+		model_f_row$Plate=plateid#
+		model_f_row$Id=colnames(dat)[i]	#
+		data<-dat[,c(9,i)]#
+		colnames(data)<-c("d","s")#
+		ik3<-dat$dilution[ which(dat[,i]<=(s_min+s_max)/2)[1] ]#
+		print(ik3)#
+		if (max(dat[,i])<(s_min+s_max)/2) {#
+			f_fit<-nls(s ~ f(d,k1,s_max-s_min,k3),data, start=list(k1=s_min, k3=ik3) ,control=nlc)#
+			model_f_row$k1=coefficients(f_fit)[1]#
+			model_f_row$k2=s_max-s_min#
+			model_f_row$k3=coefficients(f_fit)[2]#
+			model_f_row$residuals_sd=summary(f_fit)$sigma#
+		} else {#
+			f_fit<-nls(s ~ f(d,k1,k2,k3),data, start=list(k1=s_min, k2=s_max-s_min,k3=ik3) ,control=nlc)#
+			model_f_row$k1=coefficients(f_fit)[1]#
+			model_f_row$k2=coefficients(f_fit)[2]#
+			model_f_row$k3=coefficients(f_fit)[3]#
+			model_f_row$residuals_sd=summary(f_fit)$sigma#
+		}#
+		lines(log_d,predict(f_fit,list(d=d)),col=sample_col[sample_type[i]])#
+	#	plot(log10(dat$dilution),data$s,pch=16,cex=2,col=sample_col[sample_type[i]])#
+	#	lines(log_d,af(log_d,k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2),col="red")#
+	#	lines(log_d,af(log_d,k1=1.779, k2=s_max-s_min,k3= -1.277,k4= 2.476),col="red")#
+		if (is.na(model_f_plate$Id[1])) {#
+			model_f_plate<-model_f_row#
+		} else {#
+			model_f_plate<-rbind(model_f_plate,model_f_row)#
+		}#
+	}
+plot(log10(dat$dilution),dat[,1],t="p",pch=16,cex=2, col= sample_col[sample_type[1]],xlab="Relative Dilution",ylab="Signal", main= basename)#
+	for (i in 2:8) {#
+		points(log10(dat$dilution),dat[,i],pch=16,cex=2,col=sample_col[sample_type[i]])#
+		}#
+	s_min=min(dat[,1:8])	#
+	s_max=max(dat[,1:8])	#
+	abline(h=s_min,lty=2)#
+	abline(h=s_max,lty=2)#
+	abline(h=(s_min+s_max)/2,lty=2)#
+	log_d<-seq( log10(min(dat[,9])), log10(max(dat[,9])),length=100)#
+	d<-10^log_d#
+	for (i in 1:8)	{#
+		model_af_row$Lab=laboratory#
+		model_af_row$Date=platedate#
+		model_af_row$Plate=plateid#
+		model_af_row$Id=colnames(dat)[i]	#
+		data<-dat[,c(9,i)]#
+		colnames(data)<-c("d","s")#
+		ik3<-data$d[ which(data$s<=(s_min+s_max)/2)[1] ]#
+		print(ik3)#
+		if (max(dat[,i])<(s_min+s_max)/2) {#
+			af_fit<-nls(s ~ af(log10(d),k1,s_max-s_min,k3,k4),  data, start=list(k1= s_min,k3= log10(ik3),k4=2),control=nlc)#
+			model_af_row$k1=coefficients(af_fit)[1]#
+			model_af_row$k2=s_max-s_min#
+			model_af_row$k3=coefficients(af_fit)[2]#
+			model_af_row$k4=coefficients(af_fit)[3]#
+			model_af_row$residuals_sd=summary(af_fit)$sigma#
+		} else {#
+			af_fit<-nls(s ~ af(log10(d),k1,k2,k3,k4),data, start=list(k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2) ,control=nlc)#
+			model_af_row$k1=coefficients(af_fit)[1]#
+			model_af_row$k2=coefficients(af_fit)[2]#
+			model_af_row$k3=coefficients(af_fit)[3]#
+			model_af_row$k4=coefficients(af_fit)[4]#
+			model_af_row$residuals_sd=summary(af_fit)$sigma#
+		}#
+		lines(log_d,predict(af_fit,list(d=d)),col=sample_col[sample_type[i]])#
+	#	plot(log10(dat$dilution),data$s,pch=16,cex=2,col=sample_col[sample_type[i]])#
+	#	lines(log_d,af(log_d,k1=s_min, k2=s_max-s_min,k3=log10(ik3),k4=2),col="red")#
+	#	lines(log_d,af(log_d,k1=1.779, k2=s_max-s_min,k3= -1.277,k4= 2.476),col="red")#
+		if (is.na(model_af_plate$Id[1])) {#
+			model_af_plate<-model_af_row#
+		} else {#
+			model_af_plate<-rbind(model_af_plate,model_af_row)#
+		}#
+	}
